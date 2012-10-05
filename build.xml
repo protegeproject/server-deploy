@@ -12,14 +12,34 @@
             Windows Service for the Protege OWL Server
     </description>
 	<property file="local.properties"/>
-	<property name="build"     location="build"/>
-	<property name="classes"   location="${build}/classes"/>
+	<property name="server.prefix" location="${install.prefix}/server"/>
+	<property name="dev.tools"     location="${server.prefix}/bin/dev-tools.jar"/>
+	<property name="build"         location="build"/>
+	<property name="classes"       location="${build}/classes"/>
 	
+    <taskdef name="check.dependencies"
+	         classname="org.protege.ant.ProtegeDependencies">
+	    <classpath>
+		  <pathelement location="${dev.tools}"/>
+	    </classpath>
+    </taskdef>
+
 	<target name="init">
+		<mkdir dir="${classes}"/>
+	    <check.dependencies>
+		  <property name="osgi.lib"     location="${server.prefix}/lib/felix.jar"/>
+		  <property name="launcher.lib" location="${server.prefix}/lib/ProtegeLauncher.jar"/>
+	    </check.dependencies>
+	    <path id = "project.classpath">    
+	      <pathelement location="${osgi.lib}"/>
+	      <pathelement location="${launcher.lib}"/>
+	    </path>
 	</target>
 
-	<target name="compile">
-		<javac>
+	<target name="compile" depends="init">
+		<javac srcdir="./src" destdir="${classes}"
+			   debug="true" includeantruntime="false">
+			<classpath refid="project.classpath"/>
 		</javac>
 	</target>
 	
