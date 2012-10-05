@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ====================================================================== 
+     Oct 5, 2012 3:53:59 PM                                                        
+
+     Windows Protege OWL Service    
+     Windows Service for the Protege OWL Server
+                   
+     tredmond                                                                
+     ====================================================================== -->
+<project name="Windows Protege OWL Service" default="deploy">
+    <description>
+            Windows Service for the Protege OWL Server
+    </description>
+	<property file="local.properties"/>
+	<property name="build"     location="build"/>
+	<property name="classes"   location="${build}/classes"/>
+	
+	<target name="init">
+	</target>
+
+	<target name="compile">
+		<javac>
+		</javac>
+	</target>
+	
+	<target name="jar">
+	</target>
+
+    <target name="install">
+    </target>
+	
+    <target name="deploy" depends="install" description="Windows Service for the Protege OWL Server">
+        
+    </target>
+
+
+
+</project>
