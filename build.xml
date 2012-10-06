@@ -63,6 +63,7 @@
         	<arg value="--Description=Protege-OWL-Document-Service"/>
         	<arg value="--DisplayName=owl.server"/>
         	<arg value="--Startup=auto"/>
+            <arg value="--StartPath=C://Program Files/Protege Server"/>
         	<arg value="--JvmMx=2500"/>
         	<arg value="++JvmOptions=-server"/>
         	<arg value="++JvmOptions=-DentityExpansionLimit=100000000"/>
