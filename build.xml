@@ -76,6 +76,14 @@
     	</exec>
     </target>
 
+    <target name="undeploy" depends="install" description="Windows Service for the Protege OWL Server">
+        <exec dir="${server.prefix}" 
+        	  executable="${service}">
+            <arg value="//DS//OWLServer"/>
+    	</exec>
+    </target>
+
+
 	<target name="clean">
 		<delete dir="${build}"/>
 	</target>
