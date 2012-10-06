@@ -16,6 +16,9 @@
 	<property name="dev.tools"     location="${server.prefix}/bin/dev-tools.jar"/>
 	<property name="build"         location="build"/>
 	<property name="classes"       location="${build}/classes"/>
+	<property name="jar"           location="${build}/winsvc.jar"/>
+	<property name="service"       location="./apache-commons-daemon/prunsvc.exe"/>
+	<property name="manager"       location="./apache-commons-daemon/prunmgr.exe"/>
 	
     <taskdef name="check.dependencies"
 	         classname="org.protege.ant.ProtegeDependencies">
@@ -43,16 +46,38 @@
 		</javac>
 	</target>
 	
-	<target name="jar">
+	<target name="jar" depends="compile">
+		<jar destfile="${jar}" basedir="${classes}"/>
 	</target>
 
-    <target name="install">
+    <target name="install" depends="jar">
+        <copy file="${jar}"      todir="${server.prefix}/bin"/>
+    	<copy file="${service}"  todir="${server.prefix}/bin"/>
+    	<copy file="${manager}"  todir="${server.prefix}/bin"/>
     </target>
 	
     <target name="deploy" depends="install" description="Windows Service for the Protege OWL Server">
-        
+        <exec dir="${server.prefix}" 
+        	  executable="${service}">
+        	<arg value="--Description=Protege-OWL-Document-Service"/>
+        	<arg value="--DisplayName=owl.server"/>
+        	<arg value="--Startup=auto"/>
+        	<arg value="--JvmMx=2500"/>
+        	<arg value="++JvmOptions=-server"/>
+        	<arg value="++JvmOptions=-DentityExpansionLimit=100000000"/>
+        	<arg value="++JvmOptions=-Dfile.encoding=UTF-8"/>
+        	<arg value="++JvmOptions=-Dorg.protege.owl.server.configuration=metaproject.owl"/>
+        	<arg value="-Djava.util.logging.config.file=logging.properties"/>
+        	<arg value="--StartClass=org.protege.owl.server.windows.service.WindowsOWLServer"/>
+        	<arg value="--StopClass=org.protege.owl.server.windows.service.WindowsOWLServer"/>
+        	<arg value="--StartMode=java"/>
+        	<arg value="--StartParams=start"/>
+    	</exec>
     </target>
 
+	<target name="clean">
+		<delete dir="${build}"/>
+	</target>
 
 
 </project>
