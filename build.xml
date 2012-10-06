@@ -78,6 +78,29 @@
     	</exec>
     </target>
 
+    <target name="test" depends="install" description="Windows Service for the Protege OWL Server">
+        <exec dir="${server.prefix}" 
+        	  executable="${service}">
+            <arg value="//TS//OWLServer"/>
+        	<arg value="--Description=Protege-OWL-Document-Service"/>
+        	<arg value="--DisplayName=owl.server"/>
+        	<arg value="--Startup=auto"/>
+            <arg value="--Classpath=bin/winsvc.jar;lib/felix.jar;lib/ProtegeLauncher.jar"/>
+            <arg value="--StartPath=C://Program Files/Protege Server/server"/>
+        	<arg value="--JvmMx=2500"/>
+        	<arg value="++JvmOptions=-server"/>
+        	<arg value="++JvmOptions=-DentityExpansionLimit=100000000"/>
+        	<arg value="++JvmOptions=-Dfile.encoding=UTF-8"/>
+        	<arg value="++JvmOptions=-Dorg.protege.owl.server.configuration=metaproject.owl"/>
+        	<arg value="-Djava.util.logging.config.file=logging.properties"/>
+        	<arg value="--StartClass=org.protege.owl.server.windows.service.WindowsOWLServer"/>
+        	<arg value="--StopClass=org.protege.owl.server.windows.service.WindowsOWLServer"/>
+        	<arg value="--StartMode=java"/>
+        	<arg value="--StartParams=start"/>
+    	</exec>
+    </target>
+
+
     <target name="undeploy" depends="install" description="Windows Service for the Protege OWL Server">
         <exec dir="${server.prefix}" 
         	  executable="${service}">
