@@ -14,7 +14,7 @@ import org.xml.sax.SAXException;
 public class WindowsOWLServer {
     private static WindowsOWLServer instance;
     private Framework framework;
-    
+    private boolean stopped;
     
     
     private WindowsOWLServer() {
@@ -29,13 +29,23 @@ public class WindowsOWLServer {
     }
     
     public void start() throws IOException, ParserConfigurationException, SAXException, InstantiationException, IllegalAccessException, ClassNotFoundException, BundleException, InterruptedException {
+        stopped = false;
         Launcher launcher = new Launcher(new File("config.xml"));
         launcher.start(true);
         framework = launcher.getFramework();
+        synchronized (this) {
+            while (!stopped) {
+                wait();
+            }
+        }
     }
     
     public void stop() throws BundleException {
         framework.stop();
+        synchronized (this) {
+            stopped = true;
+            notifyAll();
+        }
     }
     
     public static void main(String[] args) throws IOException, ParserConfigurationException, SAXException, InstantiationException, IllegalAccessException, ClassNotFoundException, BundleException, InterruptedException {
