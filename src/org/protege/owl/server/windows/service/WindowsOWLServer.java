@@ -2,6 +2,7 @@ package org.protege.owl.server.windows.service;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.Logger;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -13,6 +14,7 @@ import org.xml.sax.SAXException;
 
 public class WindowsOWLServer {
     private static WindowsOWLServer instance;
+    private Logger logger = Logger.getLogger(WindowsOWLServer.class.getCanonicalName());
     private Framework framework;
     private boolean stopped;
     
@@ -29,7 +31,8 @@ public class WindowsOWLServer {
     }
     
     public void start() throws IOException, ParserConfigurationException, SAXException, InstantiationException, IllegalAccessException, ClassNotFoundException, BundleException, InterruptedException {
-        stopped = false;
+        logger.info("Entering apache daemon start method");
+    	stopped = false;
         Launcher launcher = new Launcher(new File("config.xml"));
         launcher.start(true);
         framework = launcher.getFramework();
@@ -41,6 +44,7 @@ public class WindowsOWLServer {
     }
     
     public void stop() throws BundleException {
+    	logger.info("Entering apache daemon stop method");
         framework.stop();
         synchronized (this) {
             stopped = true;
