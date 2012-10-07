@@ -17,8 +17,10 @@
 	<property name="build"         location="build"/>
 	<property name="classes"       location="${build}/classes"/>
 	<property name="jar"           location="${build}/winsvc.jar"/>
-	<property name="service"       location="./apache-commons-daemon/prunsrv.exe"/>
-	<property name="manager"       location="./apache-commons-daemon/prunmgr.exe"/>
+	<property name="service.src"   location="./apache-commons-daemon/amd64/prunsrv.exe"/>
+	<property name="service"       location="${server.prefix}/bin/OWLDocService.exe"/>
+	<property name="manager.src"   location="./apache-commons-daemon/prunmgr.exe"/>
+	<property name="manager"       location="${server.prefix}/bin/OWLServiceManager.exe"/>
 	
     <taskdef name="check.dependencies"
 	         classname="org.protege.ant.ProtegeDependencies">
@@ -51,16 +53,17 @@
 	</target>
 
     <target name="install" depends="jar">
-        <copy file="${jar}"      todir="${server.prefix}/bin"/>
-    	<copy file="${service}"  todir="${server.prefix}/bin"/>
-    	<copy file="${manager}"  todir="${server.prefix}/bin"/>
+        <copy file="${jar}"          todir="${server.prefix}/bin"/>
+    	<copy file="${service.src}"  tofile="${service}"/>
+    	<copy file="${manager.src}"  tofile="${manager}"/>
     </target>
 	
     <target name="deploy" depends="install" description="Windows Service for the Protege OWL Server">
         <exec dir="${server.prefix}" 
-        	  executable="${service}">
+        	  executable="${service.src}" 
+        	  failifexecutionfails="true" failonerror="true">
             <arg value="//IS//OWLServer"/>
-        	<arg value="--Install=${server.prefix}\bin\prunsrv.exe"/>
+        	<arg value="--Install=${service}"/>
         	<arg value="--Jvm=auto"/>
         	<arg value="--Description=Protege-OWL-Document-Service"/>
         	<arg value="--DisplayName=OWLServer"/>
@@ -69,17 +72,17 @@
         	<arg value="--StdError=auto"/>
         	<arg value="--Startup=auto"/>
             <arg value="--Classpath=bin/winsvc.jar;lib/felix.jar;lib/ProtegeLauncher.jar"/>
-        	<arg value="--JvmMx=2500"/>
+        	<arg value="--JvmMx=${memory.mb}"/>
         	<arg value="++JvmOptions=-DentityExpansionLimit=100000000"/>
         	<arg value="++JvmOptions=-Dfile.encoding=UTF-8"/>
         	<arg value="++JvmOptions=-Dorg.protege.owl.server.configuration=metaproject.owl"/>
         	<arg value="++JvmOptions=-Djava.util.logging.config.file=logging.properties"/>
             <arg value="--StartPath=C://Program Files/Protege Server/server"/>
-        	<arg value="--StartMode=java"/>
+        	<arg value="--StartMode=jvm"/>
         	<arg value="--StartClass=org.protege.owl.server.windows.service.WindowsOWLServer"/>
         	<arg value="--StartParams=start"/>
             <arg value="--StopPath=C://Program Files/Protege Server/server"/>
-        	<arg value="--StopMode=java"/>
+        	<arg value="--StopMode=jvm"/>
         	<arg value="--StopClass=org.protege.owl.server.windows.service.WindowsOWLServer"/>
         	<arg value="--StopParams=stop"/>
     	</exec>
@@ -87,7 +90,7 @@
 
     <target name="test" description="Windows Service for the Protege OWL Server">
         <exec dir="${server.prefix}" 
-        	  executable="${service}">
+        	  executable="${service.src}">
             <arg value="//TS//OWLServer"/>
     	</exec>
     </target>
@@ -95,7 +98,7 @@
 
     <target name="undeploy" description="Windows Service for the Protege OWL Server">
         <exec dir="${server.prefix}" 
-        	  executable="${service}">
+        	  executable="${service.src}">
             <arg value="//DS//OWLServer"/>
     	</exec>
     </target>
