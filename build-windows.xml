@@ -60,7 +60,7 @@
 		<jar destfile="${jar}" basedir="${classes}"/>
 	</target>
 	
-    <target name="deploy" depends="install" description="Windows Service for the Protege OWL Server">
+    <target name="deploy" depends="jar" description="Windows Service for the Protege OWL Server">
         <copy file="./logging.properties" todir="${server.prefix}"/>
         <replace file="${server.prefix}/logging.properties" token="@log.prefix@" value="${log.prefix}"/>
     	
