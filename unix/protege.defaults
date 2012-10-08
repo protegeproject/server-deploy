@@ -3,10 +3,11 @@
 # settings for the Protege Server.
 #
 
-HOSTNAME=@hostname@
-PROTEGE_SERVER_PREFIX=@server.prefix@
-PROTEGE_SANDBOX_USER=@sandbox.user@
-JAVA_CMD=@java.cmd@
-LOG_DIR=@log.prefix@
 DATA_DIR=@data.prefix@
 PID=@data.prefix@/PID
+HOSTNAME=@hostname@
+JAVA_CMD=@java.cmd@
+LOG_DIR=@log.prefix@
+PROTEGE_MEMORY=@memory@
+PROTEGE_SANDBOX_USER=@sandbox.user@
+PROTEGE_SERVER_PREFIX=@server.prefix@

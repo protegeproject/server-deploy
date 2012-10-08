@@ -1,7 +1,6 @@
 
-server.prefix=/usr/local/protege.server
-data.prefix=/var/protege.server
-log.prefix=/var/log/protege
+memory=700M
 hostname=pluto
 sandbox.user=tredmond
-java.cmd=/usr/local/java/jdk1.7.0_06/bin/java
+java.cmd=/usr/bin/java
+
