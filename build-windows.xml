@@ -69,6 +69,9 @@
         <copy file="./logging.properties" todir="${server.prefix}"/>
         <replace file="${server.prefix}/logging.properties" token="@log.prefix@" value="${log.prefix}"/>
     	
+    	<mkdir dir="${data.prefix}"/>
+    	<mkdir dir="${log.prefix}"/>
+    	
         <java classname="org.protege.owl.server.command.SetMetaprojectDataDir"
     	  fork="true"
         	  failonerror="true">
@@ -76,7 +79,7 @@
               <path refid="project.classpath"/>
             </classpath>
         	<arg value="${server.prefix}/metaproject.owl"/>
-        	<arg value="${install.prefix}/data"/>
+        	<arg value="${data.prefix}"/>
       	</java>
         <java classname="org.protege.owl.server.command.SetMetaProjectPort"
     	  fork="true"
