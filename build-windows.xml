@@ -109,11 +109,11 @@
         	<arg value="++JvmOptions=-Djava.util.logging.config.file=logging.properties"/>
             <arg value="--StartPath=C://Program Files/Protege Server/server"/>
         	<arg value="--StartMode=jvm"/>
-        	<arg value="--StartClass=org.protege.owl.server.windows.service.WindowsOWLServer"/>
+        	<arg value="--StartClass=org.protege.owl.server.deploy.windows.WindowsOWLServer"/>
         	<arg value="--StartParams=start"/>
             <arg value="--StopPath=C://Program Files/Protege Server/server"/>
         	<arg value="--StopMode=jvm"/>
-        	<arg value="--StopClass=org.protege.owl.server.windows.service.WindowsOWLServer"/>
+        	<arg value="--StopClass=org.protege.owl.server.deploy.windows.WindowsOWLServer"/>
         	<arg value="--StopParams=stop"/>
     	</exec>
     </target>
