@@ -1,4 +1,4 @@
-package org.protege.owl.server.windows.service;
+package org.protege.owl.server.deploy.windows;
 
 import java.io.File;
 import java.io.IOException;
