@@ -12,7 +12,7 @@
             Windows Service for the Protege OWL Server
     </description>
 	<property file="windows.properties"/>
-	<property name="server.prefix" location="${install.prefix}/server"/>
+	<property name="server.prefix" location="C:/Program Files/Protege OWL Server"/>
 	<property name="dev.tools"     location="${server.prefix}/bin/dev-tools.jar"/>
 	<property name="build"         location="build"/>
 	<property name="classes"       location="${build}/classes"/>
@@ -59,7 +59,6 @@
     </target>
 	
     <target name="deploy" depends="install" description="Windows Service for the Protege OWL Server">
-
         <java classname="org.protege.owl.server.command.SetMetaprojectDataDir"
     	  fork="true"
         	  failonerror="true">
