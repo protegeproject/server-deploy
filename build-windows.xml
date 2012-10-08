@@ -43,6 +43,8 @@
 	    <path id = "project.classpath">    
 	      <pathelement location="${osgi.lib}"/>
 	      <pathelement location="${launcher.lib}"/>
+	      <pathelement location="${owl.lib}"/>
+	      <pathelement location="${server.lib}"/>
 	    </path>
 	</target>
 
