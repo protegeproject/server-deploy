@@ -59,16 +59,14 @@
 	<target name="jar" depends="compile">
 		<jar destfile="${jar}" basedir="${classes}"/>
 	</target>
-
-    <target name="install" depends="jar">
-        <copy file="${jar}"          todir="${server.prefix}/bin"/>
-    	<copy file="${service.src}"  tofile="${service}"/>
-    	<copy file="${manager.src}"  tofile="${manager}"/>
-    </target>
 	
     <target name="deploy" depends="install" description="Windows Service for the Protege OWL Server">
         <copy file="./logging.properties" todir="${server.prefix}"/>
         <replace file="${server.prefix}/logging.properties" token="@log.prefix@" value="${log.prefix}"/>
+    	
+        <copy file="${jar}"          todir="${server.prefix}/bin"/>
+    	<copy file="${service.src}"  tofile="${service}"/>
+    	<copy file="${manager.src}"  tofile="${manager}"/>
     	
     	<mkdir dir="${data.prefix}"/>
     	<mkdir dir="${log.prefix}"/>
