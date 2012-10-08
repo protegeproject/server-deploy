@@ -11,7 +11,7 @@
     <description>
             Windows Service for the Protege OWL Server
     </description>
-	<property file="local.properties"/>
+	<property file="windows.properties"/>
 	<property name="server.prefix" location="${install.prefix}/server"/>
 	<property name="dev.tools"     location="${server.prefix}/bin/dev-tools.jar"/>
 	<property name="build"         location="build"/>
