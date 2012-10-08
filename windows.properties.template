@@ -1,5 +1,4 @@
 
-install.prefix=C://Program Files/Protege OWL Server
 memory.mb=2500
 #
 #  for 32 bit machines use
