@@ -13,6 +13,9 @@
     </description>
 	<property file="windows.properties"/>
 	<property name="server.prefix" location="C:/Program Files/Protege OWL Server"/>
+	<property name="data.prefix"   location="C:/Protege OWL Server"/>
+	<property name="log.prefix"    location="${data.prefix}/logs"/>
+	
 	<property name="dev.tools"     location="${server.prefix}/bin/dev-tools.jar"/>
 	<property name="build"         location="build"/>
 	<property name="classes"       location="${build}/classes"/>
@@ -34,6 +37,8 @@
 	    <check.dependencies>
 		  <property name="osgi.lib"     location="${server.prefix}/lib/felix.jar"/>
 		  <property name="launcher.lib" location="${server.prefix}/lib/ProtegeLauncher.jar"/>
+	      <property name="owl.lib"    location="${server.prefix}/bundles/org.semanticweb.owl.owlapi.jar"/>
+	      <property name="server.lib" location="${server.prefix}/bundles/org.protege.owl.server.jar"/>
 	    </check.dependencies>
 	    <path id = "project.classpath">    
 	      <pathelement location="${osgi.lib}"/>
@@ -59,21 +64,22 @@
     </target>
 	
     <target name="deploy" depends="install" description="Windows Service for the Protege OWL Server">
+        <copy file="./logging.properties" todir="${server.prefix}"/>
+        <replace file="${server.prefix}/logging.properties" token="@log.prefix@" value="${log.prefix}"/>
+    	
         <java classname="org.protege.owl.server.command.SetMetaprojectDataDir"
     	  fork="true"
         	  failonerror="true">
             <classpath>
-              <pathelement path="${classes}"/>
               <path refid="project.classpath"/>
             </classpath>
-        	<arg value="${install.prefix}/server/metaproject.owl"/>
+        	<arg value="${server.prefix}/metaproject.owl"/>
         	<arg value="${install.prefix}/data"/>
       	</java>
         <java classname="org.protege.owl.server.command.SetMetaProjectPort"
     	  fork="true"
         	  failonerror="true">
             <classpath>
-              <pathelement path="${classes}"/>
               <path refid="project.classpath"/>
             </classpath>
         	<arg value="${install.prefix}/server/metaproject.owl"/>

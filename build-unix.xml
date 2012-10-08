@@ -26,9 +26,9 @@
     </path>
   </target>
 
-  <target name = "install" depends="init">
-    <copy file="./unix/logging-unix.properties" todir="${server.prefix}"/>
-    <replace file="${server.prefix}/logging-unix.properties" token="@log.prefix@" value="${log.prefix}"/>
+  <target name = "deploy" depends="init">
+    <copy file="./logging.properties" todir="${server.prefix}"/>
+    <replace file="${server.prefix}/logging.properties" token="@log.prefix@" value="${log.prefix}"/>
 
     <copy file="./unix/protege.defaults" tofile="/etc/default/protege"/>
     <replace file="/etc/default/protege" token="@data.prefix@"   value="${data.prefix}"/>

@@ -1,8 +1,27 @@
 <?xml version = "1.0" encoding = "utf-8"?>
-<project name = "OWL Ontology Server Deployment" default = "install" basedir = ".">    
+<project name = "OWL Ontology Server Deployment" default = "install" basedir = ".">
+
+	<taskdef name="check.dependencies" classname="org.protege.ant.ProtegeDependencies">
+		<classpath>
+			<pathelement location="${dev.tools}" />
+		</classpath>
+	</taskdef>
+
+	<target name="init">
+		<check.dependencies>
+			<property name="owl.lib"
+				location="${server.prefix}/bundles/org.semanticweb.owl.owlapi.jar" />
+			<property name="server.lib"
+				location="${server.prefix}/bundles/org.protege.owl.server.jar" />
+		</check.dependencies>
+		<path id="project.classpath">
+			<pathelement location="${owl.lib}" />
+			<pathelement location="${server.lib}" />
+		</path>
+	</target>  
 
 
-	<target name = "install">
+	<target name = "deploy">
 	    <copy file="./etc/unix.scripts/init.d/logging-unix.properties"
           todir="${install.prefix}"/>
         
