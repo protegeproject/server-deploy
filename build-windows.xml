@@ -15,6 +15,7 @@
 	<property name="server.prefix" location="C:/Program Files/Protege OWL Server"/>
 	<property name="data.prefix"   location="C:/Protege OWL Server"/>
 	<property name="log.prefix"    location="${data.prefix}/logs"/>
+	<property name="install.port"  value="4875"/>
 	
 	<property name="dev.tools"     location="${server.prefix}/bin/dev-tools.jar"/>
 	<property name="build"         location="build"/>
