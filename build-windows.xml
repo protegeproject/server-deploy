@@ -88,7 +88,7 @@
             <classpath>
               <path refid="project.classpath"/>
             </classpath>
-        	<arg value="${install.prefix}/server/metaproject.owl"/>
+        	<arg value="${server.prefix}/metaproject.owl"/>
         	<arg value="${install.port}"/>
       	</java>
         <exec dir="${server.prefix}" 
