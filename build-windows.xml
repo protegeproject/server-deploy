@@ -59,6 +59,27 @@
     </target>
 	
     <target name="deploy" depends="install" description="Windows Service for the Protege OWL Server">
+
+        <java classname="org.protege.owl.server.command.SetMetaprojectDataDir"
+    	  fork="true"
+        	  failonerror="true">
+            <classpath>
+              <pathelement path="${classes}"/>
+              <path refid="project.classpath"/>
+            </classpath>
+        	<arg value="${install.prefix}/server/metaproject.owl"/>
+        	<arg value="${install.prefix}/data"/>
+      	</java>
+        <java classname="org.protege.owl.server.command.SetMetaProjectPort"
+    	  fork="true"
+        	  failonerror="true">
+            <classpath>
+              <pathelement path="${classes}"/>
+              <path refid="project.classpath"/>
+            </classpath>
+        	<arg value="${install.prefix}/server/metaproject.owl"/>
+        	<arg value="${install.port}"/>
+      	</java>
         <exec dir="${server.prefix}" 
         	  executable="${service.src}" 
         	  failifexecutionfails="true" failonerror="true">

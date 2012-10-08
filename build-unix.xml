@@ -1,0 +1,43 @@
+<?xml version = "1.0" encoding = "utf-8"?>
+<project name = "OWL Ontology Server Deployment" default = "install" basedir = ".">    
+
+
+  <target name = "install">
+    <copy file="./unix/logging-unix.properties"
+          todir="${install.prefix}"/>
+    <replace file="${install.prefix}/logging-unix.properties" token="@log.prefix@" value="${log.prefix}"/>
+    <copy file="./unix/protege.defaults" tofile="/etc/default/protege"/>
+    <replace file="/etc/default/protege" token="@hostname@" value="${hostname}"/>
+    <replace file="/etc/default/protege" token="@server.prefix@" value="${server.prefix}"/>
+    <replace file="/etc/default/protege" token="@sandbox.user@" value="${sandbox.user}"/>
+    <replace file="/etc/default/protege" token="@java.cmd@" value="${java.cmd}"/>
+    <replace file="/etc/default/protege" token="@log.prefix@" value="${log.prefix}"/>
+    <replace file="/etc/default/protege" token="@data.prefix@" value="${data.prefix}"/>
+    <copy file="./unix/protege" todir="/etc/init.d"/>
+    <java classname="org.protege.owl.server.command.SetMetaprojectDataDir"
+          fork="true" failonerror="true">
+      <classpath>
+        <pathelement path="${classes}" />
+        <path refid="project.classpath" />
+      </classpath>
+      <arg value="${server.prefix}/metaproject.owl" />
+      <arg value="${data.prefix}/ontologies" />
+    </java>
+    <java classname="org.protege.owl.server.command.SetMetaProjectPort"
+          fork="true" failonerror="true">
+      <classpath>
+        <pathelement path="${classes}" />
+        <path refid="project.classpath" />
+      </classpath>
+      <arg value="${install.prefix}/server/metaproject.owl" />
+      <arg value="${install.port}" />
+    </java>
+    <exec cmd="update-rc.d">
+    	<arg value="protege"/>
+    	<arg value="defaults"/>
+    </exec>
+    <exec cmd="/etc/init.d/protege">
+    	<arg value="start"/>
+    </exec>
+  </target>
+</project>

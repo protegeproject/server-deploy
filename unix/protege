@@ -11,7 +11,6 @@
 ### END INIT INFO
 
 . /etc/default/protege
-SERVER_DIR=${PROTEGE_SERVER_PREFIX}/server
 
 start()
 {
@@ -20,9 +19,11 @@ start()
        echo Protege server is already running\?
        exit -1
    fi
-   mkdir -p /var/log/protege
-   chown ${PROTEGE_SANDBOX_USER} /var/log/protege
-   cd ${SERVER_DIR}
+   mkdir -p ${LOG_DIR}
+   chown -R ${PROTEGE_SANDBOX_USER} ${LOG_DIR}
+   mkdir -p ${DATA_DIR}/ontologies
+   chown -R ${PROTEGE_SANDBOX_USER} ${DATA_DIR}
+   cd ${PROTEGE_SERVER_PREFIX}
 
    su ${PROTEGE_SANDBOX_USER} -s /bin/sh <<-END
      nohup \
@@ -34,7 +35,7 @@ start()
          -Dorg.protege.owl.server.configuration=metaproject.owl \
          -Djava.util.logging.config.file=logging-unix.properties \
          -classpath lib/felix.jar:lib/ProtegeLauncher.jar \
-         org.protege.osgi.framework.Launcher > /var/log/protege/cmdline 2>&1 &
+         org.protege.osgi.framework.Launcher > ${LOG_DIR}/cmdline 2>&1 &
      echo \$! > ${PID}
 END
 }

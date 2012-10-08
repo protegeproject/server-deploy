@@ -1,0 +1,30 @@
+<?xml version = "1.0" encoding = "utf-8"?>
+<project name = "OWL Ontology Server Deployment" default = "install" basedir = ".">    
+
+
+	<target name = "install">
+	    <copy file="./etc/unix.scripts/init.d/logging-unix.properties"
+          todir="${install.prefix}"/>
+        
+    <java classname="org.protege.owl.server.command.SetMetaprojectDataDir"
+	  fork="true"
+    	  failonerror="true">
+        <classpath>
+          <pathelement path="${classes}"/>
+          <path refid="project.classpath"/>
+        </classpath>
+    	<arg value="${install.prefix}/server/metaproject.owl"/>
+    	<arg value="${install.prefix}/data"/>
+  	</java>
+    <java classname="org.protege.owl.server.command.SetMetaProjectPort"
+	  fork="true"
+    	  failonerror="true">
+        <classpath>
+          <pathelement path="${classes}"/>
+          <path refid="project.classpath"/>
+        </classpath>
+    	<arg value="${install.prefix}/server/metaproject.owl"/>
+    	<arg value="${install.port}"/>
+  	</java>
+	</target>
+</project>
