@@ -13,6 +13,9 @@
     </description>
 	<property file="local.properties"/>
 	<property name="install.port"  value="4875"/>
+
+    <property name="memory"        value="1000M"/>
+    <property name="memory.mb"     value="1000"/>
 	
 	<property name="dev.tools"     location="${server.prefix}/bin/dev-tools.jar"/>
 	<property name="build"         location="build"/>
