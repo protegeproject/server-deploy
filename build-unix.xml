@@ -26,7 +26,7 @@
     </path>
   </target>
 
-  <target name = "deploy" depends="init">
+  <target name="install.files">
     <copy file="./logging.properties" todir="${server.prefix}"/>
     <replace file="${server.prefix}/logging.properties" token="@log.prefix@" value="${log.prefix}"/>
 
@@ -41,7 +41,9 @@
 
     <copy file="./unix/protege" todir="/etc/init.d"/>
     <chmod file="/etc/init.d/protege" perm="ugo+x"/>
+  </target>
 
+  <target name="configure.metaproject" depends="init, install-files">
     <java classname="org.protege.owl.server.command.SetMetaprojectDataDir"
           fork="true" failonerror="true">
       <classpath>
@@ -64,6 +66,9 @@
     	<arg value="protege"/>
     	<arg value="defaults"/>
     </exec>
+  </target>
+
+  <target name = "deploy" depends="install.files, configure.metaproject">
     <exec executable="/etc/init.d/protege">
     	<arg value="start"/>
     </exec>

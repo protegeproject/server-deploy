@@ -1,0 +1,6 @@
+
+memory=700M
+hostname=wormhole
+sandbox.user=tredmond
+java.cmd=/usr/bin/java
+

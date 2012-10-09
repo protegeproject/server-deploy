@@ -59,8 +59,8 @@
 	<target name="jar" depends="compile">
 		<jar destfile="${jar}" basedir="${classes}"/>
 	</target>
-	
-    <target name="deploy" depends="jar" description="Windows Service for the Protege OWL Server">
+
+    <target name="install.files" depends="jar">
         <copy file="./logging.properties" todir="${server.prefix}"/>
         <replace file="${server.prefix}/logging.properties" token="@log.prefix@" value="${log.prefix}"/>
     	
@@ -70,7 +70,9 @@
     	
     	<mkdir dir="${data.prefix}"/>
     	<mkdir dir="${log.prefix}"/>
-    	
+    </target>
+	
+    <target name="configure.metaproject" depends="install.files">
         <java classname="org.protege.owl.server.command.SetMetaprojectDataDir"
     	  fork="true"
         	  failonerror="true">
@@ -89,6 +91,10 @@
         	<arg value="${server.prefix}/metaproject.owl"/>
         	<arg value="${install.port}"/>
       	</java>
+    </target>
+
+    <target name="deploy" depends="install.files, configure.metaproject" 
+            description="Windows Service for the Protege OWL Server">
         <exec dir="${server.prefix}" 
         	  executable="${service.src}" 
         	  failifexecutionfails="true" failonerror="true">
@@ -116,6 +122,11 @@
         	<arg value="--StopClass=org.protege.owl.server.deploy.windows.WindowsOWLServer"/>
         	<arg value="--StopParams=stop"/>
     	</exec>
+        <exec dir="${server.prefix}" 
+        	  executable="${service.src}" 
+        	  failifexecutionfails="true" failonerror="true">
+            <arg value="//ES//OWLServer"/>
+        </exec>
     </target>
 
     <target name="test" description="Windows Service for the Protege OWL Server">

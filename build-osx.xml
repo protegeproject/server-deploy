@@ -1,49 +1,70 @@
 <?xml version = "1.0" encoding = "utf-8"?>
 <project name = "OWL Ontology Server Deployment" default = "install" basedir = ".">
+  <property file="osx.properties"/>
+  <property name="server.prefix"  location="/usr/local/protege.server"/>
+  <property name="data.prefix"    location="/var/protege.server"/>
+  <property name="log.prefix"     location="/var/log/protege"/>
+  <property name="install.port"   value="4875"/>
 
-	<taskdef name="check.dependencies" classname="org.protege.ant.ProtegeDependencies">
-		<classpath>
-			<pathelement location="${dev.tools}" />
-		</classpath>
-	</taskdef>
+  <property name="dev.tools"      location="${server.prefix}/bin/dev-tools.jar"/>
 
-	<target name="init">
-		<check.dependencies>
-			<property name="owl.lib"
-				location="${server.prefix}/bundles/org.semanticweb.owl.owlapi.jar" />
-			<property name="server.lib"
-				location="${server.prefix}/bundles/org.protege.owl.server.jar" />
-		</check.dependencies>
-		<path id="project.classpath">
-			<pathelement location="${owl.lib}" />
-			<pathelement location="${server.lib}" />
-		</path>
-	</target>  
+  <taskdef name="check.dependencies" classname="org.protege.ant.ProtegeDependencies">
+    <classpath>
+      <pathelement location="${dev.tools}" />
+    </classpath>
+  </taskdef>
 
+  <target name="init">
+    <check.dependencies>
+      <property name="owl.lib"
+                location="${server.prefix}/bundles/org.semanticweb.owl.owlapi.jar" />
+      <property name="server.lib"
+                location="${server.prefix}/bundles/org.protege.owl.server.jar" />
+    </check.dependencies>
+    <path id="project.classpath">
+      <pathelement location="${owl.lib}" />
+      <pathelement location="${server.lib}" />
+    </path>
+  </target>
 
-	<target name = "deploy">
-	    <copy file="./etc/unix.scripts/init.d/logging-unix.properties"
-          todir="${install.prefix}"/>
-        
+  <target name="install.files">
+    <copy file="./logging.properties" todir="${server.prefix}"/> 
+    <replace file="${server.prefix}/logging.properties" token="@log.prefix@" value="${log.prefix}"/>
+   
+    <copy file="osx/org.protege.owl.server.plist" todir="/Library/LaunchDaemons"/>
+    <replace file="/Library/LaunchDaemons/org.protege.owl.server.plist" token="@hostname@" value="${hostname}"/>
+    <replace file="/Library/LaunchDaemons/org.protege.owl.server.plist" token="@memory@" value="${memory}"/>
+    <replace file="/Library/LaunchDaemons/org.protege.owl.server.plist" token="@sandbox.user@" value="${sandbox.user}"/>
+    <replace file="/Library/LaunchDaemons/org.protege.owl.server.plist" token="@server.prefix@" value="${server.prefix}"/>
+  </target>
+
+  <target name="configure.metaproject" depends="init, install.files">
     <java classname="org.protege.owl.server.command.SetMetaprojectDataDir"
-	  fork="true"
-    	  failonerror="true">
-        <classpath>
-          <pathelement path="${classes}"/>
-          <path refid="project.classpath"/>
-        </classpath>
-    	<arg value="${install.prefix}/server/metaproject.owl"/>
-    	<arg value="${install.prefix}/data"/>
-  	</java>
+          fork="true"
+          failonerror="true">
+      <classpath>
+        <pathelement path="${classes}"/>
+        <path refid="project.classpath"/>
+      </classpath>
+      <arg value="${server.prefix}/metaproject.owl"/>
+      <arg value="${data.prefix}/ontologies"/>
+    </java>
     <java classname="org.protege.owl.server.command.SetMetaProjectPort"
-	  fork="true"
-    	  failonerror="true">
-        <classpath>
-          <pathelement path="${classes}"/>
-          <path refid="project.classpath"/>
-        </classpath>
-    	<arg value="${install.prefix}/server/metaproject.owl"/>
-    	<arg value="${install.port}"/>
-  	</java>
-	</target>
+          fork="true"
+          failonerror="true">
+      <classpath>
+        <pathelement path="${classes}"/>
+        <path refid="project.classpath"/>
+      </classpath>
+      <arg value="${server.prefix}/metaproject.owl"/>
+      <arg value="${install.port}"/>
+    </java>
+  </target>
+
+  <target name = "deploy" depends="install.files, configure.metaproject">
+    <exec dir="/Library/LaunchDaemons" executable="launchctl">
+      <arg value="load"/>
+      <arg value="org.protege.owl.server.plist"/>
+    </exec>
+  </target>
 </project>
