@@ -132,8 +132,18 @@
 	    </exec>
 	  </target>
 	
-	  <target name = "undeploy.osx" depends="install.osx.files, configure.metaproject">
-	    <exec dir="/Library/LaunchDaemons" executable="launchctl">
+	  <target name = "undeploy.osx">
+        <exec executable="chown" failifexecutionfails="true" failonerror="true">
+          <arg value="-R"/>
+          <arg value="${sandbox.user}"/>
+          <arg value="${data.prefix}"/>
+        </exec>
+        <exec executable="chown" failifexecutionfails="true" failonerror="true">
+          <arg value="-R"/>
+          <arg value="${sandbox.user}"/>
+          <arg value="${log.prefix}"/>
+        </exec>
+	    <exec dir="/Library/LaunchDaemons" executable="launchctl" failifexecutionfails="true" failonerror="true">
 	      <arg value="unload"/>
 	      <arg value="org.protege.owl.server.plist"/>
 	    </exec>
