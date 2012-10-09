@@ -68,7 +68,7 @@
     	<copy file="${service.src}"  tofile="${service}"/>
     	<copy file="${manager.src}"  tofile="${manager}"/>
     	
-    	<mkdir dir="${data.prefix}"/>
+    	<mkdir dir="${data.prefix}/ontologies"/>
     	<mkdir dir="${log.prefix}"/>
     </target>
 	
@@ -80,7 +80,7 @@
               <path refid="project.classpath"/>
             </classpath>
         	<arg value="${server.prefix}/metaproject.owl"/>
-        	<arg value="${data.prefix}"/>
+        	<arg value="${data.prefix}/ontologies"/>
       	</java>
         <java classname="org.protege.owl.server.command.SetMetaProjectPort"
     	  fork="true"
@@ -103,7 +103,7 @@
         	<arg value="--Jvm=auto"/>
         	<arg value="--Description=Protege-OWL-Document-Service"/>
         	<arg value="--DisplayName=OWLServer"/>
-        	<arg value="--LogPath=${server.prefix}\Logs"/>
+        	<arg value="--LogPath=${log.prefix}"/>
         	<arg value="--StdOutput=auto"/>
         	<arg value="--StdError=auto"/>
         	<arg value="--Startup=auto"/>

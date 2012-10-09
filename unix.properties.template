@@ -1,4 +1,8 @@
 
+
+server.prefix=/usr/local/protege.server
+data.prefix=/var/protege.server
+log.prefix=/var/log/protege
 memory=700M
 hostname=pluto
 sandbox.user=tredmond

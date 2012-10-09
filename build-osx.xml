@@ -1,5 +1,5 @@
 <?xml version = "1.0" encoding = "utf-8"?>
-<project name = "OWL Ontology Server Deployment" default = "install" basedir = ".">
+<project name = "OWL Ontology Server Deployment" default = "deploy" basedir = ".">
   <property file="osx.properties"/>
   <property name="server.prefix"  location="/usr/local/protege.server"/>
   <property name="data.prefix"    location="/var/protege.server"/>

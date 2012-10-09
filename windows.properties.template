@@ -1,4 +1,7 @@
 
+server.prefix=C:/Program Files/Protege OWL Server
+data.prefix=C:/Protege OWL Server
+log.prefix=${data.prefix}/logs
 memory.mb=2500
 
 #
