@@ -113,11 +113,11 @@
         	<arg value="++JvmOptions=-Dfile.encoding=UTF-8"/>
         	<arg value="++JvmOptions=-Dorg.protege.owl.server.configuration=metaproject.owl"/>
         	<arg value="++JvmOptions=-Djava.util.logging.config.file=logging.properties"/>
-            <arg value="--StartPath=C://Program Files/Protege Server/server"/>
+            <arg value="--StartPath=${server.prefix}"/>
         	<arg value="--StartMode=jvm"/>
         	<arg value="--StartClass=org.protege.owl.server.deploy.windows.WindowsOWLServer"/>
         	<arg value="--StartParams=start"/>
-            <arg value="--StopPath=C://Program Files/Protege Server/server"/>
+            <arg value="--StopPath=${server.prefix}"/>
         	<arg value="--StopMode=jvm"/>
         	<arg value="--StopClass=org.protege.owl.server.deploy.windows.WindowsOWLServer"/>
         	<arg value="--StopParams=stop"/>
