@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ====================================================================== 
+     Oct 5, 2012 3:53:59 PM                                                        
+
+     Protege OWL Deployer    
+     Deploys the Protege OWL Server as a Daemon
+                   
+     tredmond                                                                
+     ====================================================================== -->
+<project name="Protege OWL Deployer">
+    <description>
+           Protege OWL Deployer
+    </description>
+	<property file="local.properties"/>
+	<property name="install.port"  value="4875"/>
+	
+	<property name="dev.tools"     location="${server.prefix}/bin/dev-tools.jar"/>
+	<property name="build"         location="build"/>
+	<property name="classes"       location="${build}/classes"/>
+	<property name="jar"           location="${build}/winsvc.jar"/>
+	<property name="service.src"   location="./apache-commons-daemon/amd64/prunsrv.exe"/>
+	<property name="service"       location="${server.prefix}/bin/OWLDocService.exe"/>
+	<property name="manager.src"   location="./apache-commons-daemon/prunmgr.exe"/>
+	<property name="manager"       location="${server.prefix}/bin/OWLServiceManager.exe"/>
+	
+    <taskdef name="check.dependencies"
+	         classname="org.protege.ant.ProtegeDependencies">
+	    <classpath>
+		  <pathelement location="${dev.tools}"/>
+	    </classpath>
+    </taskdef>
+
+	<target name="init">
+		<mkdir dir="${classes}"/>
+	    <check.dependencies>
+		  <property name="osgi.lib"     location="${server.prefix}/lib/felix.jar"/>
+		  <property name="launcher.lib" location="${server.prefix}/lib/ProtegeLauncher.jar"/>
+	      <property name="owl.lib"    location="${server.prefix}/bundles/org.semanticweb.owl.owlapi.jar"/>
+	      <property name="server.lib" location="${server.prefix}/bundles/org.protege.owl.server.jar"/>
+	    </check.dependencies>
+	    <path id = "project.classpath">    
+	      <pathelement location="${osgi.lib}"/>
+	      <pathelement location="${launcher.lib}"/>
+	      <pathelement location="${owl.lib}"/>
+	      <pathelement location="${server.lib}"/>
+	    </path>
+	</target>
+	
+    <target name="install.files">
+        <copy file="./logging.properties" todir="${server.prefix}" overwrite="true"/>
+        <replace file="${server.prefix}/logging.properties" token="@log.prefix@" value="${log.prefix}"/>
+ 
+    	<mkdir dir="${data.prefix}/ontologies"/>
+    	<mkdir dir="${log.prefix}"/>
+    </target>
+	
+    <target name="configure.metaproject" depends="init">
+        <java classname="org.protege.owl.server.command.SetMetaprojectDataDir"
+    	  fork="true"
+        	  failonerror="true">
+            <classpath>
+              <path refid="project.classpath"/>
+            </classpath>
+        	<arg value="${server.prefix}/metaproject.owl"/>
+        	<arg value="${data.prefix}/ontologies"/>
+      	</java>
+        <java classname="org.protege.owl.server.command.SetMetaProjectPort"
+    	  fork="true"
+        	  failonerror="true">
+            <classpath>
+              <path refid="project.classpath"/>
+            </classpath>
+        	<arg value="${server.prefix}/metaproject.owl"/>
+        	<arg value="${install.port}"/>
+      	</java>
+    </target>
+	
+	<!-- ********************** Unix with init.d **********************-->
+	
+	<target name="install.unix.files" depends="install.files">
+	    <copy file="./unix/protege.defaults" tofile="/etc/default/protege" overwrite="true"/>
+	    <replace file="/etc/default/protege" token="@data.prefix@"   value="${data.prefix}"/>
+	    <replace file="/etc/default/protege" token="@hostname@"      value="${hostname}"/>
+	    <replace file="/etc/default/protege" token="@java.cmd@"      value="${java.cmd}"/>
+	    <replace file="/etc/default/protege" token="@log.prefix@"    value="${log.prefix}"/>
+	    <replace file="/etc/default/protege" token="@memory@"        value="${memory}"/>
+	    <replace file="/etc/default/protege" token="@sandbox.user@"  value="${sandbox.user}"/>
+	    <replace file="/etc/default/protege" token="@server.prefix@" value="${server.prefix}"/>
+
+	    <copy file="./unix/protege" todir="/etc/init.d"/>
+	    <chmod file="/etc/init.d/protege" perm="ugo+x"/>
+	    <exec executable="update-rc.d">
+	    	<arg value="protege"/>
+	    	<arg value="defaults"/>
+	    </exec>
+	</target>
+	
+	<target name="deploy.unix" depends="install.unix.files, configure.metaproject">
+	    <exec executable="/etc/init.d/protege">
+	    	<arg value="start"/>
+	    </exec>
+	</target>
+	
+	<target name="undeploy.unix">
+	    <exec executable="/etc/init.d/protege">
+	    	<arg value="stop"/>
+	    </exec>
+	    <exec executable="update-rc.d">
+	    	<arg value="protege"/>
+	    	<arg value="remove"/>
+	    </exec>
+		<delete file="/etc/init.d/protege"/>
+	</target>
+	
+	<!-- *********************** OS/X with LaunchCtl ************************ -->
+	
+	<target name="install.osx.files" depends="install.files">
+	    <copy file="osx/org.protege.owl.server.plist" todir="/Library/LaunchDaemons" overwrite="true"/>
+	    <replace file="/Library/LaunchDaemons/org.protege.owl.server.plist" token="@hostname@" value="${hostname}"/>
+	    <replace file="/Library/LaunchDaemons/org.protege.owl.server.plist" token="@memory@" value="${memory}"/>
+	    <replace file="/Library/LaunchDaemons/org.protege.owl.server.plist" token="@sandbox.user@" value="${sandbox.user}"/>
+	    <replace file="/Library/LaunchDaemons/org.protege.owl.server.plist" token="@server.prefix@" value="${server.prefix}"/>
+    </target>
+	
+	  <target name = "deploy.osx" depends="install.osx.files, configure.metaproject">
+	    <exec dir="/Library/LaunchDaemons" executable="launchctl">
+	      <arg value="load"/>
+	      <arg value="org.protege.owl.server.plist"/>
+	    </exec>
+	  </target>
+	
+	  <target name = "undeploy.osx" depends="install.osx.files, configure.metaproject">
+	    <exec dir="/Library/LaunchDaemons" executable="launchctl">
+	      <arg value="unload"/>
+	      <arg value="org.protege.owl.server.plist"/>
+	    </exec>
+	  	<delete file="/Library/LaunchDaemons/org.protege.owl.server.plist"/>
+	  </target>
+	
+	<!-- *********************** Windows ************************ -->
+
+	<target name="compile" depends="init">
+		<javac srcdir="./src" destdir="${classes}"
+			   debug="true" includeantruntime="false">
+			<classpath refid="project.classpath"/>
+		</javac>
+	</target>
+	
+	<target name="jar" depends="compile">
+		<jar destfile="${jar}" basedir="${classes}"/>
+	</target>
+	
+	<target name="install.windows.files" depends="jar, install.files">
+        <copy file="${jar}"          todir="${server.prefix}/bin"/>
+    	<copy file="${service.src}"  tofile="${service}"/>
+    	<copy file="${manager.src}"  tofile="${manager}"/>
+    </target>
+
+    <target name="deploy.windows" depends="install.windows.files, configure.metaproject" 
+            description="Windows Service for the Protege OWL Server">
+        <exec dir="${server.prefix}" 
+        	  executable="${service}" 
+        	  failifexecutionfails="true" failonerror="true">
+            <arg value="//IS//OWLServer"/>
+        	<arg value="--Install=${service}"/>
+        	<arg value="--Jvm=auto"/>
+        	<arg value="--Description=Protege-OWL-Document-Service"/>
+        	<arg value="--DisplayName=OWLServer"/>
+        	<arg value="--LogPath=${log.prefix}"/>
+        	<arg value="--StdOutput=auto"/>
+        	<arg value="--StdError=auto"/>
+        	<arg value="--Startup=auto"/>
+            <arg value="--Classpath=bin/winsvc.jar;lib/felix.jar;lib/ProtegeLauncher.jar"/>
+        	<arg value="--JvmMx=${memory.mb}"/>
+        	<arg value="++JvmOptions=-DentityExpansionLimit=100000000"/>
+        	<arg value="++JvmOptions=-Dfile.encoding=UTF-8"/>
+        	<arg value="++JvmOptions=-Dorg.protege.owl.server.configuration=metaproject.owl"/>
+        	<arg value="++JvmOptions=-Djava.util.logging.config.file=logging.properties"/>
+            <arg value="--StartPath=${server.prefix}"/>
+        	<arg value="--StartMode=jvm"/>
+        	<arg value="--StartClass=org.protege.owl.server.deploy.windows.WindowsOWLServer"/>
+        	<arg value="--StartParams=start"/>
+            <arg value="--StopPath=${server.prefix}"/>
+        	<arg value="--StopMode=jvm"/>
+        	<arg value="--StopClass=org.protege.owl.server.deploy.windows.WindowsOWLServer"/>
+        	<arg value="--StopParams=stop"/>
+    	</exec>
+        <exec dir="${server.prefix}" 
+        	  executable="${service}" 
+        	  failifexecutionfails="true" failonerror="true">
+            <arg value="//ES//OWLServer"/>
+        </exec>
+    </target>
+	
+    <target name="undeploy.windows">
+        <exec dir="${server.prefix}" 
+        	  executable="${service.src}">
+            <arg value="//DS//OWLServer"/>
+    	</exec>
+    </target>
+</project>
