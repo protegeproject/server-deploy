@@ -1,5 +1,5 @@
 
-memory=700M
+memory.mb=700
 hostname=wormhole
 sandbox.user=tredmond
 #
