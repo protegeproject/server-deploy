@@ -1,0 +1,9 @@
+
+memory=700M
+hostname=wormhole
+sandbox.user=tredmond
+#
+# Windows users must also set a sandbox.password property.
+# This means that Windows users should take extra care to ensure that 
+# the sandbox.user is a non-user account with few privileges.
+#
