@@ -43,18 +43,18 @@
       <condition property="is.windows">
         <os family="windows"/>
       </condition>
-      <condition property="is.windows32">
-          <os family="windows" arch="32"/>
-      </condition>
       <condition property="is.windows64">
-        <os family="windows" arch="64"/>
+        <os family="windows" arch="amd64"/>
+      </condition>
+      <condition property="is.windows32">
+          <os family="windows" arch="x86"/>
       </condition>
       <condition property="is.unsupported">
         <not>
           <or>
             <os family="unix"/>
-            <os family="windows32"/>
-            <os family="windows64"/>
+            <isset property="is.windows32"/>
+            <isset property="is.windows64"/>
           </or>
         </not>
       </condition>
@@ -231,8 +231,8 @@
 
     <target name="configure.windows.directories" if="is.windows">
       <property name="server.prefix"  location="C:/Program Files/Protege OWL Server"/>
-      <property name="data.prefix"    location="C:/Program Data/Protege OWL Server"/>
-      <property name="log.prefix"     location="${data.prefix}/logs"/>
+      <property name="data.prefix"    location="C:/ProgramData/Protege OWL Server"/>
+      <property name="log.prefix"     value="C:/ProgramData/Protege OWL Server/logs"/>
       <property name="java.cmd"       location="${java.home}/bin/java"/>
 
 	  <property name="service"       location="${server.prefix}/bin/OWLDocService.exe"/>
@@ -259,26 +259,39 @@
     	<copy file="${service64.src}"  tofile="${service}"/>
 	</target>
 
+	<!-- 
+	   the 
+	    <exec executable="icacls" failifexecutionfails="true" failonerror="true">
+          <arg value="${data.prefix}"/>
+          <arg value="/T"/>
+          <arg value="/grant"/>
+          <arg value="${sandbox.user}:F"/>
+        </exec>
+        <exec executable="icacls" failifexecutionfails="true" failonerror="true">
+          <arg value="${log.prefix}"/>
+          <arg value="/T"/>
+          <arg value="/deny"/>
+          <arg value="${sandbox.user}:F"/>
+        </exec>
+        calls were debugged and work.  But they are not needed
+      -->
 	<target name="install.windows.files" depends="jar, install.noarch.files,install.windows32.files, install.windows64.files"
             if="is.windows">
         <copy file="${jar}"          todir="${server.prefix}/bin"/>
     	<copy file="${manager.src}"  tofile="${manager}"/>
         
-        <exec executable="cacls" failifexecutionfails="true" failonerror="true">
-          <arg value="${data.prefix}"/>
-          <arg value="/p"/>
-          <arg value="${sandbox.user}:F"/>
-        </exec>
-        <exec executable="cacls" failifexecutionfails="true" failonerror="true">
-          <arg value="${log.prefix}"/>
-          <arg value="/p"/>
-          <arg value="${sandbox.user}:F"/>
-        </exec>
+
     </target>
 
+	<!-- 
+	    the Apache Daemon has a ServiceUser and ServicePassword option to make the server 
+	    run under a particular user id.  But it appears that this option does not work.
+	   -->
     <target name="deploy.windows" depends="install.windows.files, configure.metaproject" 
             if="is.windows"
             description="Windows Service for the Protege OWL Server">
+    	<echo message="Deploying windows Protege OWL Server"/>
+    	<echo message="Will run as ${sandbox.user}"/>
         <exec dir="${server.prefix}" 
         	  executable="${service}" 
         	  failifexecutionfails="true" failonerror="true">
@@ -291,8 +304,6 @@
         	<arg value="--StdOutput=auto"/>
         	<arg value="--StdError=auto"/>
         	<arg value="--Startup=auto"/>
-            <arg value="--ServiceUser=${sandbox.user}"/>
-            <arg value="--ServicePassword=${sandbox.password}"/>
             <arg value="--Classpath=bin/winsvc.jar;lib/felix.jar;lib/ProtegeLauncher.jar"/>
         	<arg value="--JvmMx=${memory.mb}"/>
         	<arg value="++JvmOptions=-DentityExpansionLimit=100000000"/>
@@ -317,6 +328,7 @@
     </target>
 	
     <target name="undeploy.windows" depends="init" if="is.windows">
+    	<echo message="Undeploying windows Protege OWL Servers"/>
         <exec dir="${server.prefix}" 
         	  executable="${service64.src}">
             <arg value="//DS//OWLServer"/>
