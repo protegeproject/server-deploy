@@ -177,11 +177,11 @@
 	    <exec executable="/etc/init.d/protege">
 	    	<arg value="stop"/>
 	    </exec>
+	    <delete file="/etc/init.d/protege" failonerror="false"/>
 	    <exec executable="update-rc.d">
 	    	<arg value="protege"/>
 	    	<arg value="remove"/>
 	    </exec>
-		<delete file="/etc/init.d/protege"/>
 	</target>
 	
 	<!-- *********************** OS/X with LaunchCtl ************************ -->
