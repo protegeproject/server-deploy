@@ -150,8 +150,17 @@
       <property name="log.prefix"     location="/var/log/protege"/>
       <property name="java.cmd"       location="${java.home}/bin/java"/>
     </target>
+
+    <target name="copy.unix.scripts" depends="init">
+      <copy todir="${server.prefix}/bin">
+        <fileset dir="./unix/bin"/>
+      </copy>
+      <chmod perm="0755">
+        <fileset dir="${server.prefix}/bin"/>
+      </chmod>
+    </target>
 	
-	<target name="install.unix.files" depends="install.noarch.files" if="is.unix">
+	<target name="install.unix.files" depends="install.noarch.files, copy.unix.scripts" if="is.unix">
 	    <copy file="./unix/protege.defaults" tofile="/etc/default/protege" overwrite="true"/>
 	    <replace file="/etc/default/protege" token="@data.prefix@"   value="${data.prefix}"/>
 	    <replace file="/etc/default/protege" token="@hostname@"      value="${hostname}"/>
