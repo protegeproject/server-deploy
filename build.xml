@@ -77,7 +77,7 @@
       <taskdef name="check.dependencies"
 	           classname="org.protege.ant.ProtegeDependencies">
 	    <classpath>
-		  <pathelement location="${server.dist}/bin/dev-tools.jar"/>
+		  <pathelement location="${server.dist}/lib/dev-tools.jar"/>
 	    </classpath>
       </taskdef>
 	  <check.dependencies>
@@ -127,6 +127,8 @@
       	</java>
     </target>
 
+    <target name="install" depends="init, install.unix.files, install.osx.files, install.windows.files"/>
+
     <target name="deploy" depends="init, deploy.windows, deploy.osx, deploy.unix"/>
 
     <target name="undeploy" depends="init, undeploy.windows, undeploy.osx, undeploy.unix"/>
@@ -158,16 +160,15 @@
 	    <replace file="/etc/default/protege" token="@memory@"        value="${memory.mb}M"/>
 	    <replace file="/etc/default/protege" token="@sandbox.user@"  value="${sandbox.user}"/>
 	    <replace file="/etc/default/protege" token="@server.prefix@" value="${server.prefix}"/>
-
+	</target>
+	
+	<target name="deploy.unix" depends="install.unix.files, configure.metaproject" if="is.unix">
 	    <copy file="./unix/protege" todir="/etc/init.d"/>
 	    <chmod file="/etc/init.d/protege" perm="ugo+x"/>
 	    <exec executable="update-rc.d">
 	    	<arg value="protege"/>
 	    	<arg value="defaults"/>
 	    </exec>
-	</target>
-	
-	<target name="deploy.unix" depends="install.unix.files, configure.metaproject" if="is.unix">
 	    <exec executable="/etc/init.d/protege">
 	    	<arg value="start"/>
 	    </exec>
