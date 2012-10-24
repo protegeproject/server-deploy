@@ -204,7 +204,7 @@
     </target>
 
 	
-	<target name="install.osx.files" depends="install.noarch.files" if="is.osx">
+	<target name="install.osx.files" depends="install.noarch.files,copy.unix.scripts" if="is.osx">
 	    <copy file="osx/org.protege.owl.server.plist" todir="/Library/LaunchDaemons" overwrite="true"/>
 	    <replace file="/Library/LaunchDaemons/org.protege.owl.server.plist" token="@hostname@" value="${hostname}"/>
 	    <replace file="/Library/LaunchDaemons/org.protege.owl.server.plist" token="@memory@" value="${memory.mb}M"/>
