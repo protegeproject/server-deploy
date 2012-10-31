@@ -133,10 +133,13 @@
 
     <target name="undeploy" depends="init, undeploy.windows, undeploy.osx, undeploy.unix"/>
 
-    <target name="clean" depends="configure.directories, undeploy">
+    <target name="clean">
+      <delete dir="${build}"/>
+    </target>
+
+    <target name="clean.full" depends="configure.directories, undeploy, clean">
       <delete dir="${server.prefix}"/>
       <delete dir="${log.prefix}"/>
-      <delete dir="${build}"/>
       <echo message="Data directory, ${data.prefix}, not deleted"/>
       <echo message="as it may contain user data"/>
     </target>
