@@ -341,7 +341,7 @@
     <target name="undeploy.windows" depends="install.windows.files" if="is.windows">
         <echo message="Undeploying windows Protege OWL Servers"/>
         <exec dir="${server.prefix}" 
-              executable="${service.src}">
+              executable="${service}">
             <arg value="//DS//OWLServer"/>
         </exec>
     </target>
