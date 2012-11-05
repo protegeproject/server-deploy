@@ -265,7 +265,7 @@
 	</target>
 
 	<target name="install.windows32.files" depends="jar, install.noarch.files" if="is.windows32">
-    	<copy file="${service64.src}"  tofile="${service}"/>
+    	<copy file="${service32.src}"  tofile="${service}"/>
 	</target>
 
 	<target name="install.windows64.files" depends="jar, install.noarch.files" if="is.windows64">
