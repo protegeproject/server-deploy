@@ -330,6 +330,7 @@
             <arg value="--StopMode=jvm"/>
             <arg value="--StopClass=org.protege.owl.server.deploy.windows.WindowsOWLServer"/>
             <arg value="--StopParams=stop"/>
+            <arg value="--LogLevel=Debug"/>
         </exec>
         <exec dir="${server.prefix}" 
               executable="${service}" 
