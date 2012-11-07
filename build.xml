@@ -127,9 +127,9 @@
         </java>
     </target>
 
-    <target name="install" depends="init, install.unix.files, install.osx.files, install.windows.files"/>
+    <target name="install" depends="init, install.unix.files, install.osx.files, install.windows.files, configure.metaproject"/>
 
-    <target name="deploy" depends="init, deploy.windows, deploy.osx, deploy.unix"/>
+    <target name="deploy" depends="init, deploy.windows, deploy.osx, deploy.unix, configure.metaproject"/>
 
     <target name="undeploy" depends="init, undeploy.windows, undeploy.osx, undeploy.unix"/>
 
@@ -144,6 +144,14 @@
       <echo message="as it may contain user data"/>
     </target>
     
+
+    <target name="usage">
+      <echo message="ant install    - installs the files but does not start the server"/>
+      <echo message="ant deploy     - installs and starts the server as a service"/>
+      <echo message="ant undeploy   - stops the service now and on reboot"/>
+      <echo message="ant clean      - cleans the development directory"/>
+      <echo message="ant clean.full - cleans the development directory and installed files"/>
+    </target>
     
     <!-- ********************** Unix with init.d **********************-->
 
@@ -154,7 +162,7 @@
       <property name="java.cmd"       location="${java.home}/bin/java"/>
     </target>
 
-    <target name="copy.unix.scripts" depends="init">
+    <target name="copy.unix.scripts" depends="init" if="is.unix">
       <copy todir="${server.prefix}/bin">
         <fileset dir="./unix/bin"/>
       </copy>
@@ -277,9 +285,12 @@
         <copy file="${jar}"             todir="${server.prefix}/bin"/>
         <copy file="${manager.src}"     tofile="${manager}"/>
 
-        <property name="runbat"         location="${server.prefix}/bin"/>
-        <copy file="./windows/run.bat"  todir="${runbat}"/>
+        <property name="runbat"         location="${server.prefix}/bin/run-protege-owl-server.bat"/>
+        <copy file="./windows/run-protege-owl-server.bat"  tofile="${runbat}"/>
         <replace file="${runbat}" token="@hostname@" value="${hostname}"/>
+        <replace file="${runbat}" token="@memory@"   value="${memory.mb}M"/>
+        <replace file="${runbat}" token="@hostname@" value="${hostname}"/>
+        <replace file="${runbat}" token="@user@"     value="${sandbox.user}"/>
 
         <exec executable="icacls" failifexecutionfails="true" failonerror="false">
           <arg value="${data.prefix}"/>
@@ -344,7 +355,7 @@
         <echo message="Undeploying windows Protege OWL Servers"/>
         <exec dir="${server.prefix}" 
               executable="${service}"
-              failifexecutionfails="true" failonerror="true">
+              failifexecutionfails="false" failonerror="false">
             <arg value="//DS//OWLServer"/>
         </exec>
     </target>
