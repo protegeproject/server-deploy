@@ -2,6 +2,7 @@ REM User configurable variables
 
 set hostname=localhost
 set memory=700M
+set user=Protege
 
 REM End of user configurable variables section
 REM Keep configuring if you like but this should be less likely
@@ -9,7 +10,8 @@ REM Keep configuring if you like but this should be less likely
 set classpath=lib\felix.jar;lib\ProtegeLauncher.jar
 
 
-java.exe -Djava.awt.headless=true ^
+runas /user:%user% ^
+    java.exe -Djava.awt.headless=true ^
          -Xmx%memory% ^
          -Djava.rmi.server.hostname=%hostname% ^
          -DentityExpansionLimit=1000000 -Dfile.encoding=UTF-8 ^

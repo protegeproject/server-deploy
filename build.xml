@@ -290,8 +290,9 @@
       -->
     <target name="install.windows.files" depends="jar, install.noarch.files,install.windows32.files, install.windows64.files"
             if="is.windows">
-        <copy file="${jar}"          todir="${server.prefix}/bin"/>
-        <copy file="${manager.src}"  tofile="${manager}"/>
+        <copy file="${jar}"             todir="${server.prefix}/bin"/>
+        <copy file="${manager.src}"     tofile="${manager}"/>
+        <copy file="./windows/run.bat"  todir="${server.prefix}"/>
     </target>
 
     <!-- 
