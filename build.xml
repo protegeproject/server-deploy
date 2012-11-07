@@ -339,7 +339,8 @@
     <target name="undeploy.windows" depends="configure.windows.directories" if="is.windows">
         <echo message="Undeploying windows Protege OWL Servers"/>
         <exec dir="${server.prefix}" 
-              executable="${service}">
+              executable="${service}"
+              failifexecutionfails="true" failonerror="true">
             <arg value="//DS//OWLServer"/>
         </exec>
     </target>
