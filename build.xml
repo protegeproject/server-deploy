@@ -276,7 +276,11 @@
             if="is.windows">
         <copy file="${jar}"             todir="${server.prefix}/bin"/>
         <copy file="${manager.src}"     tofile="${manager}"/>
-        <copy file="./windows/run.bat"  todir="${server.prefix}"/>
+
+        <property name="runbat"         location="${server.prefix}/bin"/>
+        <copy file="./windows/run.bat"  todir="${runbat}"/>
+        <replace file="${runbat}" token="@hostname@" value="${hostname}"/>
+
         <exec executable="icacls" failifexecutionfails="true" failonerror="false">
           <arg value="${data.prefix}"/>
           <arg value="/T"/>
