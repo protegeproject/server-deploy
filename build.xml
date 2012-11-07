@@ -272,8 +272,11 @@
         <copy file="${service64.src}"  tofile="${service}"/>
     </target>
 
-    <!-- 
-       the 
+    <target name="install.windows.files" depends="jar, install.noarch.files,install.windows32.files, install.windows64.files"
+            if="is.windows">
+        <copy file="${jar}"             todir="${server.prefix}/bin"/>
+        <copy file="${manager.src}"     tofile="${manager}"/>
+        <copy file="./windows/run.bat"  todir="${server.prefix}"/>
         <exec executable="icacls" failifexecutionfails="true" failonerror="true">
           <arg value="${data.prefix}"/>
           <arg value="/T"/>
@@ -283,16 +286,9 @@
         <exec executable="icacls" failifexecutionfails="true" failonerror="true">
           <arg value="${log.prefix}"/>
           <arg value="/T"/>
-          <arg value="/deny"/>
+          <arg value="/grant"/>
           <arg value="${sandbox.user}:F"/>
         </exec>
-        calls were debugged and work.  But they are not needed
-      -->
-    <target name="install.windows.files" depends="jar, install.noarch.files,install.windows32.files, install.windows64.files"
-            if="is.windows">
-        <copy file="${jar}"             todir="${server.prefix}/bin"/>
-        <copy file="${manager.src}"     tofile="${manager}"/>
-        <copy file="./windows/run.bat"  todir="${server.prefix}"/>
     </target>
 
     <!-- 
