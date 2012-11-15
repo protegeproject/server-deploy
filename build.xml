@@ -23,7 +23,7 @@
     <property name="service64.src" location="./apache-commons-daemon/amd64/prunsrv.exe"/>
     <property name="manager.src"   location="./apache-commons-daemon/prunmgr.exe"/>
 
-    <property name="server.dist"   location="../org.protege.owl.server/build/server"/>
+    <property name="dist.zip"      location="./protege-owl-server.zip"/>
     
     <target name="detect.os">
       <condition property="is.unix">
@@ -73,18 +73,32 @@
         <mkdir dir="${classes}"/>
     </target>
 
+    
+    <target name="install.noarch.files" depends="init">
+      <mkdir dir="${server.prefix}"/>
+      <unzip src="${dist.zip}" dest="${server.prefix}">
+        <regexpmapper from="^server/(.*)$$" to="\1"/>
+      </unzip>
+
+      <copy file="./logging.properties" todir="${server.prefix}" overwrite="true"/>
+      <replace file="${server.prefix}/logging.properties" token="@log.prefix@" value="${log.prefix}"/>
+      
+      <mkdir dir="${data.prefix}/ontologies"/>
+      <mkdir dir="${log.prefix}"/>
+    </target>
+    
     <target name="setup.classpath" depends="configure.directories">
       <taskdef name="check.dependencies"
                classname="org.protege.ant.ProtegeDependencies">
         <classpath>
-          <pathelement location="${server.dist}/lib/dev-tools.jar"/>
+          <pathelement location="${server.prefix}/lib/dev-tools.jar"/>
         </classpath>
       </taskdef>
       <check.dependencies>
-        <property name="osgi.lib"     location="${server.dist}/lib/felix.jar"/>
-        <property name="launcher.lib" location="${server.dist}/lib/ProtegeLauncher.jar"/>
-        <property name="owl.lib"      location="${server.dist}/bundles/org.semanticweb.owl.owlapi.jar"/>
-        <property name="server.lib"   location="${server.dist}/bundles/org.protege.owl.server.jar"/>
+        <property name="osgi.lib"     location="${server.prefix}/lib/felix.jar"/>
+        <property name="launcher.lib" location="${server.prefix}/lib/ProtegeLauncher.jar"/>
+        <property name="owl.lib"      location="${server.prefix}/bundles/org.semanticweb.owl.owlapi.jar"/>
+        <property name="server.lib"   location="${server.prefix}/bundles/org.protege.owl.server.jar"/>
       </check.dependencies>
       <path id = "project.classpath">    
         <pathelement location="${osgi.lib}"/>
@@ -93,19 +107,8 @@
         <pathelement location="${server.lib}"/>
       </path>
     </target>
-    
-    <target name="install.noarch.files" depends="init">
-      <mkdir dir="${server.prefix}"/>
-      <copy todir="${server.prefix}">
-        <fileset dir="${server.dist}"/>
-      </copy>
-      <copy file="./logging.properties" todir="${server.prefix}" overwrite="true"/>
-      <replace file="${server.prefix}/logging.properties" token="@log.prefix@" value="${log.prefix}"/>
-      
-      <mkdir dir="${data.prefix}/ontologies"/>
-      <mkdir dir="${log.prefix}"/>
-    </target>
-    
+
+
     <target name="configure.metaproject" depends="init,setup.classpath">
         <java classname="org.protege.owl.server.command.SetMetaprojectDataDir"
           fork="true"
@@ -261,7 +264,7 @@
     </target>
 
 
-    <target name="compile" depends="init, setup.classpath" if="is.windows">
+    <target name="compile" depends="init, install.noarch.files, setup.classpath" if="is.windows">
         <javac srcdir="./src" destdir="${classes}"
                debug="true" includeantruntime="false">
             <classpath refid="project.classpath"/>
@@ -272,7 +275,7 @@
         <jar destfile="${jar}" basedir="${classes}"/>
     </target>
 
-    <target name="install.windows32.files" depends="jar, install.noarch.files" if="is.windows32">
+    <target name="install.windows32.files" depends="jar" if="is.windows32">
         <copy file="${service32.src}"  tofile="${service}"/>
     </target>
 
