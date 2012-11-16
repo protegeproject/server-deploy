@@ -17,8 +17,9 @@
     <property name="memory.mb"     value="1000"/>
     
     <property name="build"         location="build"/>
-    <property name="classes"       location="${build}/classes"/>
-    <property name="jar"           location="${build}/winsvc.jar"/>
+    <property name="src.win"       location="./src.windows"/>
+    <property name="classes.win"   location="${build}/classes.windows"/>
+    <property name="jar.win"       location="${build}/winsvc.jar"/>
     <property name="service32.src" location="./apache-commons-daemon/prunsrv.exe"/>
     <property name="service64.src" location="./apache-commons-daemon/amd64/prunsrv.exe"/>
     <property name="manager.src"   location="./apache-commons-daemon/prunmgr.exe"/>
@@ -70,7 +71,7 @@
     <target name="configure.directories" depends="detect.os, configure.windows.directories, configure.osx.directories, configure.unix.directories"/>
 
     <target name="init" depends="configure.directories, check.unsupported">
-        <mkdir dir="${classes}"/>
+        <mkdir dir="${classes.win}"/>
     </target>
 
     
@@ -264,28 +265,28 @@
     </target>
 
 
-    <target name="compile" depends="init, install.noarch.files, setup.classpath" if="is.windows">
-        <javac srcdir="./src" destdir="${classes}"
+    <target name="compile.win" depends="init, install.noarch.files, setup.classpath" if="is.windows">
+        <javac srcdir="${src.win}" destdir="${classes.win}"
                debug="true" includeantruntime="false">
             <classpath refid="project.classpath"/>
         </javac>
     </target>
     
-    <target name="jar" depends="compile" if="is.windows">
-        <jar destfile="${jar}" basedir="${classes}"/>
+    <target name="jar.win" depends="compile.win" if="is.windows">
+        <jar destfile="${jar.win}" basedir="${classes.win}"/>
     </target>
 
-    <target name="install.windows32.files" depends="jar" if="is.windows32">
+    <target name="install.windows32.files" depends="jar.win" if="is.windows32">
         <copy file="${service32.src}"  tofile="${service}"/>
     </target>
 
-    <target name="install.windows64.files" depends="jar, install.noarch.files" if="is.windows64">
+    <target name="install.windows64.files" depends="jar.win, install.noarch.files" if="is.windows64">
         <copy file="${service64.src}"  tofile="${service}"/>
     </target>
 
-    <target name="install.windows.files" depends="jar, install.noarch.files,install.windows32.files, install.windows64.files"
+    <target name="install.windows.files" depends="jar.win, install.noarch.files,install.windows32.files, install.windows64.files"
             if="is.windows">
-        <copy file="${jar}"             todir="${server.prefix}/bin"/>
+        <copy file="${jar.win}"             todir="${server.prefix}/bin"/>
         <copy file="${manager.src}"     tofile="${manager}"/>
 
         <property name="runbat"         location="${server.prefix}/bin/run-protege-owl-server.bat"/>
