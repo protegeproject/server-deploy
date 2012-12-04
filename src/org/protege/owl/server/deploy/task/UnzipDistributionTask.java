@@ -11,14 +11,23 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 public class UnzipDistributionTask {
-    public static final String PREFIX_TO_REMOVE = "server";
     private File zipFile;
     private File targetDir;
+    private String prefixToRemove;
     
     public UnzipDistributionTask(File zipFile, File targetDir) {
         this.zipFile = zipFile;
         this.targetDir = targetDir;
+        this.prefixToRemove = "";
     }
+    
+    public void setPrefixToRemove(String prefixToRemove) {
+		this.prefixToRemove = prefixToRemove;
+	}
+    
+    public String getPrefixToRemove() {
+		return prefixToRemove;
+	}
     
     public void run() throws IOException {
         ZipInputStream is = new ZipInputStream(new FileInputStream(zipFile));
@@ -26,19 +35,21 @@ public class UnzipDistributionTask {
             ZipEntry zEntry = null;
             while ((zEntry = is.getNextEntry()) != null) {
                 String originalName =  zEntry.getName();
-                File fileToWrite = new File(targetDir, originalName);
-                if (zEntry.isDirectory()) {
-                    fileToWrite.mkdirs();
-                }
-                else {
-                    fileToWrite.getParentFile().mkdirs();
-                    OutputStream os = new BufferedOutputStream(new FileOutputStream(fileToWrite));
-                    try {
-                        copy(is, os);
-                    }
-                    finally {
-                        os.close();
-                    }
+                if (originalName.startsWith(prefixToRemove)) {
+                	File fileToWrite = new File(targetDir, originalName.substring(prefixToRemove.length()));
+                	if (zEntry.isDirectory()) {
+                		fileToWrite.mkdirs();
+                	}
+                	else {
+                		fileToWrite.getParentFile().mkdirs();
+                		OutputStream os = new BufferedOutputStream(new FileOutputStream(fileToWrite));
+                		try {
+                			copy(is, os);
+                		}
+                		finally {
+                			os.close();
+                		}
+                	}
                 }
                 is.closeEntry();
             }
