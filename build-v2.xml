@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- ====================================================================== 
+     Oct 5, 2012 3:53:59 PM                                                        
+
+     Protege OWL Deployer    
+     Builds a deployer for the Protege OWL Server as a Daemon
+                   
+     tredmond                                                                
+     ====================================================================== -->
+<project name="Protege OWL Deployer">
+    <property name="src"      location="./src"/>
+	<property name="build"    location="./build"/>
+	<property name="classes"  location="${build}/classes"/>
+	<property name="manifest" location="${build}/manifest.mf"/>
+	<property name="jar"      location="${build}/owl-server-installer.jar"/>
+	
+	
+	<target name="init">
+		<mkdir dir="${build}"/>
+		<mkdir dir="${classes}"/>
+	</target>
+	
+	<target name="compile" depends="init">
+		<javac srcdir="${src}" destdir="${classes}" includeantruntime="false" debug="true"/>
+	</target>
+	
+	<target name="manifest" depends="init">
+		<manifest file="${manifest}">
+			<attribute name="Main-Class" value="org.protege.owl.server.deploy.Deployer"/>
+		</manifest>
+	</target>
+	
+	<target name="copy.unix.resources">
+		<zip basedir="./unix/bin" destfile="${classes}/unix-scripts.zip"/>
+		<mkdir dir="${classes}/unix"/>
+		<copy file="./unix/protege" todir="${classes}/unix"/>
+		<copy file="./unix/protege.defaults" todir="${classes}/unix"/>
+	</target>
+	
+	<target name="copy.resources" depends="init, copy.unix.resources">
+		<copy file="protege-owl-server.zip" todir="${classes}"/>
+	</target>
+	
+	<target name="jar" depends="compile, copy.resources, manifest">
+		<jar basedir="${classes}" 
+			 file="${jar}"
+		     manifest="${manifest}"/>
+	</target>
+	
+	<target name="debug">
+		<java classname="org.protege.owl.server.deploy.Deployer" fork="true">
+			<jvmarg value="-agentlib:jdwp=transport=dt_socket,address=8100,server=y,suspend=y"/>
+			<classpath>
+				<pathelement location="${jar}"/>
+		    </classpath>
+		</java>
+    </target>
+		
+	<target name="clean">
+		<delete dir="${build}"/>
+	</target>
+
+</project>
