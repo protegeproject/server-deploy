@@ -1,23 +1,30 @@
 package org.protege.owl.server.deploy;
 
-public class OSXInstaller extends AbstractInstaller {
+import java.io.File;
+import java.io.IOException;
+
+public class OSXInstaller extends UnixInstaller {
+    private File servicePlist;
 	
 	public OSXInstaller(Configuration configuration) {
 		super(configuration);
+		servicePlist = new File("/Library/LaunchDaemons/org.protege.owl.server.plist");
 	}
 	
 	@Override
-	protected void postInstall() {
-		throw new IllegalStateException("Not implemented yet");
+	protected void postInstall() throws IOException {
+	    installUnixScripts();
 	}
 
 	@Override
-	protected void postDeploy() {
-		throw new IllegalStateException("Not implemented yet");
+	protected void postDeploy() throws IOException {
+		getConfiguration().copyWithReplacements(getResource("osx/org.protege.owl.server.plist"), servicePlist);
+		run("launchctl load " + servicePlist.getAbsolutePath());
 	}
 
 	@Override
-	protected void doUndeploy() {
-		throw new IllegalStateException("Not implemented yet");
+	protected void doUndeploy() throws IOException {
+        run("launchctl unload " + servicePlist.getAbsolutePath());
+        servicePlist.delete();
 	}
 }
