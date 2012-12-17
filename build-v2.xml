@@ -26,7 +26,7 @@
 	
 	<target name="manifest" depends="init">
 		<manifest file="${manifest}">
-			<attribute name="Main-Class" value="org.protege.owl.server.deploy.Deployer"/>
+			<attribute name="Main-Class" value="org.protege.owl.server.deploy.Main"/>
 		</manifest>
 	</target>
 	
@@ -36,8 +36,17 @@
 		<copy file="./unix/protege" todir="${classes}/unix"/>
 		<copy file="./unix/protege.defaults" todir="${classes}/unix"/>
 	</target>
+
+	<target name="copy.windows.resources">
+		<mkdir dir="${classes}/windows"/>
+		<copy file="./windows/winsvc.jar" todir="${classes}/windows"/>
+		<copy file="./windows/run-protege-owl-server.bat" todir="${classes}/windows"/>
+        <copy file="./apache-commons-daemon/prnsrv.exe" tofile="${classes}/windows/prnsrv-32.exe"/>
+        <copy file="./apache-commons-daemon/amd64/prnsrv.exe" tofile="${classes}/windows/prnsrv-64.exe"/>
+	</target>
+
 	
-	<target name="copy.resources" depends="init, copy.unix.resources">
+	<target name="copy.resources" depends="init, copy.unix.resources, copy.windows.resources">
 		<copy file="protege-owl-server.zip" todir="${classes}"/>
 	</target>
 	

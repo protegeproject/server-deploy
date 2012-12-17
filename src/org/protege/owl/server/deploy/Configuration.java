@@ -52,7 +52,7 @@ public class Configuration {
 		parameterMap.put(Parameter.SANDBOX_USER, sandboxUser);
 		parameterMap.put(Parameter.HOSTNAME, hostname);
 		parameterMap.put(Parameter.JAVA_CMD, javacmd);
-		parameterMap.put(Parameter.MEMORY_IN_MB, "" + memoryMb);
+		parameterMap.put(Parameter.MEMORY_IN_MB, "" + memoryMb + "M");
 	}
 	
 	private void setupLinuxParameterMap() {
