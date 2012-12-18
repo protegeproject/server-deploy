@@ -3,6 +3,7 @@ package org.protege.owl.server.deploy;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
 
@@ -37,21 +38,13 @@ public abstract class AbstractInstaller implements Installer {
 	}
 	
 	private void configureServer() throws IOException {
+        runJava("org.protege.owl.server.command.SetMetaprojectDataDir",
+                "metaproject.owl",
+                new File(configuration.getParameterValue(Parameter.DATA_PREFIX), "ontologies").getAbsolutePath());
 
-		StringBuffer setDataDirCommand = new StringBuffer();
-		setDataDirCommand.append(" org.protege.owl.server.command.SetMetaprojectDataDir ");
-		setDataDirCommand.append(new File(serverLocation, "metaproject.owl").getAbsoluteFile().toString());
-		setDataDirCommand.append(' ');
-		setDataDirCommand.append(new File(configuration.getParameterValue(Parameter.DATA_PREFIX), "ontologies"));
-		runJava(setDataDirCommand.toString());
-		
-		
-		StringBuffer setPortCommand = new StringBuffer();
-		setPortCommand.append(" org.protege.owl.server.command.SetMetaProjectPort ");
-		setPortCommand.append(new File(serverLocation, "metaproject.owl").getAbsoluteFile().toString());
-		setPortCommand.append(' ');
-		setPortCommand.append(SERVER_PORT);
-		runJava(setPortCommand.toString());
+        runJava("org.protege.owl.server.command.SetMetaProjectPort",
+        		"metaproject.owl",
+                "" + SERVER_PORT);
 	}
 	
 	protected abstract void postInstall() throws IOException;
@@ -59,7 +52,12 @@ public abstract class AbstractInstaller implements Installer {
 	@Override
 	public void uninstall() throws IOException {
 		if (serverLocation.exists()) {
-			undeploy();
+			try {
+				undeploy();
+			}
+			catch (IOException ioe) {
+				System.out.println("Undeploy failed: " + ioe.getMessage());
+			}
 			Utility.deleteRecursively(serverLocation);
 		}
 	}
@@ -97,44 +95,70 @@ public abstract class AbstractInstaller implements Installer {
 		return serverLocation;
 	}
     
-    protected void run(String command) throws IOException {
-    	log("Exec: " + command);
-    	runNoAnnounce(command);
+    protected void run(File directory, String... command) throws IOException {
+    	StringBuffer sb = new StringBuffer("Exec:");
+    	for (String commandPart : command) { 
+    		sb.append(' ');
+    		sb.append(commandPart);
+    	}
+    	log(sb.toString());
+    	runNoAnnounce(directory, command);
     }
     
-    protected void runNoAnnounce(String command) throws IOException {
-    	Process p = Runtime.getRuntime().exec(command);
-        BufferedReader out = new BufferedReader(new InputStreamReader(p.getInputStream()));
-        BufferedReader err = new BufferedReader(new InputStreamReader(p.getErrorStream()));
-        while (true) {
-        	String outLine = out.readLine();
-        	if (outLine != null) {
-        		log("  " + outLine);
-        	}
-        	String outErr = err.readLine();
-        	if (outErr != null) {
-        		log("  " + outErr);
-        	}
-        	if (outLine == null && outErr == null) {
-        		break;
-        	}
-        }
+    protected void runNoAnnounce(File directory, String... command) throws IOException {
+    	final Process p = Runtime.getRuntime().exec(command, null, directory);
+    	new Thread(new DisplayOutputRunner(p.getInputStream())).start();
+    	new Thread(new DisplayOutputRunner(p.getErrorStream())).start();
     }
     
-    protected void runJava(String javaCommand) throws IOException {
-    	log("Java Exec: " + javaCommand);
-		StringBuffer unixCommand = new StringBuffer();
-		unixCommand.append(configuration.getParameterValue(Parameter.JAVA_CMD));
-		unixCommand.append(" -classpath ");
-		unixCommand.append(new File(serverLocation, "bundles/org.semanticweb.owl.owlapi.jar").getAbsolutePath());
-		unixCommand.append(':');
-		unixCommand.append(new File(serverLocation, "bundles/org.protege.owl.server.jar").getAbsolutePath());
-		unixCommand.append(' ');
-		unixCommand.append(javaCommand);
-		runNoAnnounce(unixCommand.toString());
+    private class DisplayOutputRunner implements Runnable {
+    	private InputStream is;
+    	
+    	public DisplayOutputRunner(InputStream is) {
+    		this.is = is;
+    	}
+    	
+    	@Override
+		public void run() {
+    		try {
+    			BufferedReader out = new BufferedReader(new InputStreamReader(is));
+    			for (String outLine = out.readLine(); outLine != null; outLine = out.readLine()) {
+    				log(outLine);
+    			}
+    		}
+    		catch (IOException e) {
+    			e.printStackTrace();
+    		}
+    		finally {
+    			try {
+    				is.close();
+    			}
+    			catch (IOException ioe) {
+    				ioe.printStackTrace();
+    			}
+    		}
+		}
+    }
+    
+    protected void runJava(String... javaCommand) throws IOException {
+    	StringBuffer sb = new StringBuffer("Java Exec:");
+    	for (String commandPart : javaCommand) { 
+    		sb.append(' ');
+    		sb.append(commandPart);
+    	}
+    	log(sb.toString());
+    	String[] unixCommand = new String[javaCommand.length + 3];
+    	unixCommand[0] = configuration.getParameterValue(Parameter.JAVA_CMD);
+    	unixCommand[1] = "-classpath";
+    	unixCommand[2] = "bundles/org.semanticweb.owl.owlapi.jar" + File.pathSeparator + "bundles/org.protege.owl.server.jar";
+    	for (int i = 0; i < javaCommand.length; i++) {
+    		unixCommand[i+3] = javaCommand[i];
+    	}
+		runNoAnnounce(serverLocation, unixCommand);
     }
     
     protected void log(String message) {
     	System.out.println(message);
     }
+
 }

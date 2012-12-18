@@ -22,19 +22,19 @@ public class LinuxInstaller extends UnixInstaller {
         getConfiguration().copyWithReplacements(getResource("unix/protege.defaults"), protegeDefaults);
         getConfiguration().copyWithReplacements(getResource("unix/protege"), initdFile);
         makeExecutable(initdFile);
-        run("update-rc.d protege defaults");
-        run("/etc/init.d/protege start");
+        run(null, "update-rc.d", "protege", "defaults");
+        run(null, "/etc/init.d/protege", "start");
 	}
 
 	@Override
 	protected void doUndeploy() throws IOException {
 		if (initdFile.exists()) {
 			log("Stopping Protege OWL Server");
-	        run("/etc/init.d/protege stop");
+	        run(null, "/etc/init.d/protege", "stop");
 	        log("Deleting /etc/init.d and /etc/rc*.d Protege OWL Server scripts");
 	        initdFile.delete();
 	        protegeDefaults.delete();
-	        run("update-rc.d protege remove");
+	        run(null, "update-rc.d", "protege", "remove");
 	        File logDir  = new File(getConfiguration().getParameterValue(Parameter.LOG_PREFIX));
 	        logDir.delete();
 		}

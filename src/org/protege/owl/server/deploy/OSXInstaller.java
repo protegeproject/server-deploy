@@ -19,12 +19,12 @@ public class OSXInstaller extends UnixInstaller {
 	@Override
 	protected void postDeploy() throws IOException {
 		getConfiguration().copyWithReplacements(getResource("osx/org.protege.owl.server.plist"), servicePlist);
-		run("launchctl load " + servicePlist.getAbsolutePath());
+		run(getServerLocation(), "launchctl", "load", servicePlist.getAbsolutePath().toString());
 	}
 
 	@Override
 	protected void doUndeploy() throws IOException {
-        run("launchctl unload " + servicePlist.getAbsolutePath());
+        run(getServerLocation(), "launchctl",  "unload", servicePlist.getAbsolutePath().toString());
         servicePlist.delete();
 	}
 }

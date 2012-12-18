@@ -24,14 +24,14 @@ public abstract class UnixInstaller extends AbstractInstaller {
         String sandboxUser = getConfiguration().getParameterValue(Parameter.SANDBOX_USER);
         logDir.mkdirs();
         dataDir.mkdirs();
-        run("chown -R " + sandboxUser + " " + logDir);
-        run("chown -R " + sandboxUser + " " + dataDir);
+        run(logDir, "chown", "-R", sandboxUser, logDir.getAbsolutePath());
+        run(dataDir, "chown", "-R", sandboxUser, dataDir.getAbsolutePath());
     }
     
     
     protected void makeExecutable(File f) throws IOException {
         Runtime r = Runtime.getRuntime();
-        r.exec("chmod 0555 " + f.getAbsolutePath());
+        r.exec("chmod ugo+x " + f.getAbsolutePath());
     }
 
 }

@@ -23,8 +23,8 @@ public class WindowsInstaller extends AbstractInstaller {
 		String sandBoxUser = getConfiguration().getParameterValue(Parameter.SANDBOX_USER);
 		new File(dataPrefix).mkdirs();
 		new File(logPrefix).mkdirs();
-		run("icacls " + dataPrefix + " /T /grant " + sandBoxUser + ":F");
-		run("icacls " + logPrefix  + " /T /grant " + sandBoxUser + ":F");
+		run(getServerLocation(), "icacls", dataPrefix, "/T", "/grant", sandBoxUser + ":F");
+		run(getServerLocation(), "icacls", logPrefix,  "/T", "/grant", sandBoxUser + ":F");
 	}
 
 	@Override
@@ -38,56 +38,44 @@ public class WindowsInstaller extends AbstractInstaller {
 	private void loadService() throws IOException {
 	    installService();
         log("Starting OWLServer Service");
-        run("" + serviceManager.getAbsolutePath() + "//ES//OWLServer");
+        run(serviceManager.getParentFile(), serviceManager.getAbsolutePath(), "//ES//OWLServer");
 	}
 	
 	private void installService() throws IOException {
 	    log("Installing OWLServer service");
-	    StringBuffer installCommand = new StringBuffer();
-	    installCommand.append(serviceManager.toString());
-	    installCommand.append(" //IS//OWLServer");
-	    installCommand.append(" --Install=");
-	    installCommand.append(serviceManager.getAbsolutePath());
-	    installCommand.append(" --Jvm=auto");
-	    installCommand.append(" --Description=Protege-OWL-Document-Service");
-	    installCommand.append(" --DisplayName=OWLServer");
-	    installCommand.append(" --LogPath=");
-	    installCommand.append(getConfiguration().getParameterValue(Parameter.LOG_PREFIX));
-	    installCommand.append(" --StdOutput=auto");
-	    installCommand.append(" --StdError=auto");
-	    installCommand.append(" --Startup=auto");
-	    installCommand.append(" --Classpath=");
-	    installCommand.append(new File(serverLocation, "bin/winsvc.jar").getAbsolutePath());
-	    installCommand.append(';');
-	    installCommand.append(new File(serverLocation, "lib/felix.jar").getAbsolutePath());
-	    installCommand.append(';');
-	    installCommand.append(new File(serverLocation, "lib/ProtegeLauncher.jar").getAbsolutePath());
-	    installCommand.append(" --JvmMx=${memory.mb}");
-	    installCommand.append(" ++JvmOptions=-DentityExpansionLimit=100000000");
-	    installCommand.append(" ++JvmOptions=-Dfile.encoding=UTF-8");
-	    installCommand.append(" ++JvmOptions=-Djava.rmi.server.hostname=");
-	    installCommand.append(getConfiguration().getParameterValue(Parameter.HOSTNAME));
-	    installCommand.append(" ++JvmOptions=-Dorg.protege.owl.server.configuration=");
-	    installCommand.append(new File(serverLocation, "metaproject.owl").getAbsolutePath());
-	    installCommand.append(" ++JvmOptions=-Djava.util.logging.config.file=");
-	    installCommand.append(new File(serverLocation, "logging.properties"));
-	    installCommand.append(" --StartPath=");
-	    installCommand.append(serverLocation.getAbsolutePath());
-	    installCommand.append(" --StartMode=jvm");
-	    installCommand.append(" --StartClass=org.protege.owl.server.deploy.windows.WindowsOWLServer");
-	    installCommand.append(" --StartParams=start");
-	    installCommand.append(" --StopPath=");
-	    installCommand.append(serverLocation.getAbsolutePath());
-	    installCommand.append(" --StopMode=jvm");
-	    installCommand.append(" --StopClass=org.protege.owl.server.deploy.windows.WindowsOWLServer");
-	    installCommand.append(" --StopParams=stop");
-	    installCommand.append(" --LogLevel=Debug");
-	    runNoAnnounce(installCommand.toString());
+	    run(serviceManager.getParentFile(), serviceManager.getAbsolutePath(), "//DS//OWLServer");
+        run(getServerLocation(),
+                       serviceManager.getAbsolutePath(),
+                       "//IS//OWLServer",
+                       "--Install=" + serviceManager.getAbsolutePath(),
+                       "--Jvm=auto",
+                       "--Description=Protege-OWL-Document-Service",
+                       "--DisplayName=OWLServer",
+                       "--LogPath=" + getConfiguration().getParameterValue(Parameter.LOG_PREFIX),
+                       "--StdOutput=auto",
+                       "--StdError=auto",
+                       "--Startup=auto",
+                       "--Classpath=lib/winsvc.jar;lib/felix.jar;lib/ProtegeLauncher.jar",
+                       "--JvmMx=" + getConfiguration().getParameterValue(Parameter.MEMORY_IN_MB),
+                       "++JvmOptions=-DentityExpansionLimit=100000000",
+                       "++JvmOptions=-Dfile.encoding=UTF-8",
+                       "++JvmOptions=-Djava.rmi.server.hostname=" + getConfiguration().getParameterValue(Parameter.HOSTNAME),
+                       "++JvmOptions=-Dorg.protege.owl.server.configuration=metaproject.owl",
+                       "++JvmOptions=-Djava.util.logging.config.file=logging.properties",
+                       "--StartPath=" + serverLocation.getAbsolutePath(),
+                       "--StartMode=jvm",
+                       "--StartClass=org.protege.owl.server.deploy.windows.WindowsOWLServer",
+                       "--StartParams=start",
+                       "--StopPath=" + serverLocation.getAbsolutePath(),
+                       "--StopMode=jvm",
+                       "--StopClass=org.protege.owl.server.deploy.windows.WindowsOWLServer",
+                       "--StopParams=stop",
+                       "--LogLevel=Debug");
 	}
 
 	@Override
 	protected void doUndeploy() throws IOException {
         log("Starting OWLServer Service");
-        run("" + serviceManager.getAbsolutePath() + "//DS//OWLServer");
+        run(serviceManager.getParentFile(), serviceManager.getAbsolutePath(), "//DS//OWLServer");
 	}
 }

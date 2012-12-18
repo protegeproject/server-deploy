@@ -6,7 +6,6 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.Console;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -21,6 +20,10 @@ import javax.swing.JTextField;
 import org.protege.owl.server.deploy.task.UnzipDistributionTask;
 
 public class Main extends JFrame {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -2039765599195259981L;
 	private JTextField sandBoxUserField;
 	private JTextField hostnameField;
 	private JTextField javacmdField;
@@ -125,8 +128,14 @@ public class Main extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			try {
+				Configuration configuration = createConfiguration();
 				createInstaller().uninstall();
-				JOptionPane.showMessageDialog(Main.this, "Uninstalled");
+				if (!new File(configuration.getParameterValue(Parameter.SERVER_PREFIX)).exists()) {
+					JOptionPane.showMessageDialog(Main.this, "Uninstalled");
+				}
+				else {
+					JOptionPane.showMessageDialog(Main.this, "Uninstall Incomplete");
+				}
 				System.exit(0);
 			}
 			catch (IOException ioe) {
