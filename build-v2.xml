@@ -33,15 +33,17 @@
 	<target name="copy.unix.resources">
 		<zip basedir="./unix/bin" destfile="${classes}/unix-scripts.zip"/>
 		<mkdir dir="${classes}/unix"/>
-		<copy file="./unix/protege" todir="${classes}/unix"/>
-		<copy file="./unix/protege.defaults" todir="${classes}/unix"/>
+		<copy file="./unix/protege"            todir="${classes}/unix"/>
+		<copy file="./unix/protege.defaults"   todir="${classes}/unix"/>
+		<copy file="./unix/logging.properties" todir="${classes}/unix"/>
 	</target>
 
 	<target name="copy.windows.resources">
 		<mkdir dir="${classes}/windows"/>
-		<copy file="./windows/winsvc.jar" todir="${classes}/windows"/>
+		<copy file="./windows/logging.properties"         todir="${classes}/windows"/>
+		<copy file="./windows/winsvc.jar"                 todir="${classes}/windows"/>
 		<copy file="./windows/run-protege-owl-server.bat" todir="${classes}/windows"/>
-        <copy file="./apache-commons-daemon/prunsrv.exe" tofile="${classes}/windows/prunsrv-32.exe"/>
+        <copy file="./apache-commons-daemon/prunsrv.exe"       tofile="${classes}/windows/prunsrv-32.exe"/>
         <copy file="./apache-commons-daemon/amd64/prunsrv.exe" tofile="${classes}/windows/prunsrv-64.exe"/>
 	</target>
 	

@@ -4,7 +4,7 @@ REM User configurable variables
 
 set hostname=@hostname@
 set memory=@memory@
-set user=@user@
+set user=@sandbox.user@
 set install.dir=C:\Program Files\Protege OWL Server
 
 REM End of user configurable variables section
@@ -20,4 +20,4 @@ set command=%command% -Dorg.protege.owl.server.configuration=metaproject.owl
 set command=%command% -Djava.util.logging.config.file=logging.properties
 set command=%command% -classpath %classpath% org.protege.osgi.framework.Launcher
 
-runas /user:%user% "cmd /k cd %install.dir% & %command%"
+runas "/user:%user%" "cmd /k cd %install.dir% & %command%"

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 public class WindowsInstaller extends AbstractInstaller {
+	public static final boolean NO_DEPLOY = true;
 	private File serverLocation;
 	private File serviceManager;
 	
@@ -12,6 +13,12 @@ public class WindowsInstaller extends AbstractInstaller {
 		super(configuration);
 		serverLocation = new File(configuration.getParameterValue(Parameter.SERVER_PREFIX));
 		serviceManager = new File(serverLocation, "bin/OWLDocService.exe");
+	}
+	
+	@Override
+	protected void installLogger() throws IOException {
+		File logConfiguration = new File(getServerLocation(), "logging.properties");
+		getConfiguration().copyWithReplacements(getResource("windows/logging.properties"), logConfiguration);
 	}
 	
 	
@@ -29,6 +36,9 @@ public class WindowsInstaller extends AbstractInstaller {
 
 	@Override
 	protected void postDeploy() throws IOException {
+		if (NO_DEPLOY) {
+			return;
+		}
 		getConfiguration().copyWithReplacements(getResource("windows/winsvc.jar"), new File(serverLocation, "lib/winsvc.jar"));
 		String serviceManagerResource = getConfiguration().getOperatingSystem() == OperatingSystem.WINDOWS_32_BIT ? "windows/prunsrv-32.exe" : "windows/prunsrv-64.exe";
 		Utility.copy(getResource(serviceManagerResource), serviceManager);
@@ -75,6 +85,9 @@ public class WindowsInstaller extends AbstractInstaller {
 
 	@Override
 	protected void doUndeploy() throws IOException {
+		if (NO_DEPLOY) {
+			return;
+		}
         log("Starting OWLServer Service");
         run(serviceManager.getParentFile(), serviceManager.getAbsolutePath(), "//DS//OWLServer");
 	}

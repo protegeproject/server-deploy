@@ -8,7 +8,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.URL;
+import java.net.UnknownHostException;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -29,6 +31,9 @@ public class Main extends JFrame {
 	private JTextField javacmdField;
 	private JTextField memoryField;
 	
+	private JButton deployButton;
+	private JButton undeployButton;
+	
 	
 	public Main() {
 		super("Protege OWL Server Installer");
@@ -45,6 +50,8 @@ public class Main extends JFrame {
 	}
 	
 	private JPanel createCenterPanel() {
+		OperatingSystem os = OperatingSystem.detectOperatingSystem();
+
 		JPanel panel = new JPanel();
 		panel.setLayout(new GridLayout(0,2));
 		
@@ -64,18 +71,61 @@ public class Main extends JFrame {
 		memoryField=new JTextField();
 		panel.add(memoryField);
 		
-		Dimension dim1 = new JLabel("/usr/local/java/jdk1.6.034_8888").getPreferredSize();
+		initializeFields(os);
+		
+		Dimension dim1 = new JLabel("/usr/local/java/jdk1.6.034_8888/bin/java pad").getPreferredSize();
 		Dimension dim2 = javacmdField.getPreferredSize();
 		javacmdField.setPreferredSize(new Dimension((int) dim1.getWidth(), (int) dim2.getHeight()));
 		
 		return panel;
 	}
 	
+	private void initializeFields(OperatingSystem os) {
+		initializeHostnameField(os);
+		initializeJavaCmdField(os);
+	}
+	
+	private void initializeHostnameField(OperatingSystem os) { 
+		try {
+			String hostname = InetAddress.getLocalHost().getHostName();
+			if (hostname != null) {
+				hostnameField.setText(hostname);
+			}
+		}
+		catch (UnknownHostException uhe) {
+			;
+		}
+	}
+	
+	private void initializeJavaCmdField(OperatingSystem os) {
+		String javaHome = System.getProperty("java.home");
+		File guess = null;
+		switch (os) {
+		case OS_X:
+			guess = new File("/usr/bin/java");
+			break;
+		case LINUX:
+			if (javaHome != null) {
+				guess = new File(javaHome, "bin/java");
+			}
+			break;
+		case WINDOWS_32_BIT:
+		case WINDOWS_64_BIT:
+			if (javaHome != null) {
+				guess = new File(javaHome, "bin/java.exe");
+			}
+			break;
+		}
+		if (guess != null && guess.exists()) {
+			javacmdField.setText(guess.getAbsolutePath());
+		}
+	}
+	
 	private JPanel createBottomPanel() {
 		JPanel panel = new JPanel();
 		panel.setLayout(new GridLayout(1,0));
 		
-		JButton deployButton = new JButton("Deploy");
+	    deployButton = new JButton("Deploy");
 		deployButton.addActionListener(new DeployActionListener());
 		panel.add(deployButton);
 		
@@ -83,13 +133,19 @@ public class Main extends JFrame {
 		installButton.addActionListener(new InstallActionListener());
 		panel.add(installButton);
 		
-		JButton undeployButton = new JButton("Undeploy");
+	    undeployButton = new JButton("Undeploy");
 		undeployButton.addActionListener(new UndeployActionListener());
 		panel.add(undeployButton);
 		
 		JButton uninstallButton = new JButton("Uninstall");
 		uninstallButton.addActionListener(new UninstallActionListener());
 		panel.add(uninstallButton);
+		
+		OperatingSystem os = OperatingSystem.detectOperatingSystem();
+		if (os == null || os.isWindows()) {
+			deployButton.setEnabled(false);
+			undeployButton.setEnabled(false);
+		}
 		
 		return panel;
 	}
@@ -98,9 +154,9 @@ public class Main extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			try {
-				createInstaller().install();
-				JOptionPane.showMessageDialog(Main.this, "Installed");
-				System.exit(0);
+				Installer installer = createInstaller();
+				installer.install();
+				JOptionPane.showMessageDialog(Main.this, new InstallationInfo(installer.getConfiguration(), "Installed"));
 			}
 			catch (IOException ioe) {
 				JOptionPane.showMessageDialog(Main.this, "Install failed: " + ioe.getMessage());
@@ -113,9 +169,9 @@ public class Main extends JFrame {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			try {
-				createInstaller().deploy();
-				JOptionPane.showMessageDialog(Main.this, "Deployed");
-				System.exit(0);
+				Installer installer = createInstaller();
+				installer.deploy();
+				JOptionPane.showMessageDialog(Main.this, new InstallationInfo(installer.getConfiguration(), "Deployed"));
 			}
 			catch (IOException ioe) {
 				JOptionPane.showMessageDialog(Main.this, "Deploy failed: " + ioe.getMessage());
@@ -136,7 +192,6 @@ public class Main extends JFrame {
 				else {
 					JOptionPane.showMessageDialog(Main.this, "Uninstall Incomplete");
 				}
-				System.exit(0);
 			}
 			catch (IOException ioe) {
 				JOptionPane.showMessageDialog(Main.this, "Uninstall failed: " + ioe.getMessage());
@@ -151,7 +206,6 @@ public class Main extends JFrame {
 			try {
 				createInstaller().undeploy();
 				JOptionPane.showMessageDialog(Main.this, "Undeployed");
-				System.exit(0);
 			}
 			catch (IOException ioe) {
 				JOptionPane.showMessageDialog(Main.this, "Undeploy failed: " + ioe.getMessage());

@@ -11,6 +11,13 @@ public abstract class UnixInstaller extends AbstractInstaller {
         super(configuration);
     }
     
+	
+	@Override
+	protected void installLogger() throws IOException {
+		File logConfiguration = new File(getServerLocation(), "logging.properties");
+		getConfiguration().copyWithReplacements(getResource("unix/logging.properties"), logConfiguration);
+	}
+    
     protected void installUnixScripts() throws IOException {
         log("Setting up linux command line scripts");
         File binDirectory = new File(getServerLocation(), "bin");

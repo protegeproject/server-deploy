@@ -20,16 +20,23 @@ public abstract class AbstractInstaller implements Installer {
 		serverLocation = new File(configuration.getParameterValue(Parameter.SERVER_PREFIX));
 	}
 
+	public Configuration getConfiguration() {
+		return configuration;
+	}
+
 	@Override
 	public final void install() throws IOException {
 		log("Deleting " + serverLocation);
     	Utility.deleteRecursively(serverLocation);
-    	if (serverLocation.mkdirs()) {
+    	serverLocation.mkdirs();
+    	if (serverLocation.exists()) {
     		log("Extracting server");
     		UnzipDistributionTask task = new UnzipDistributionTask(getResource(Configuration.SERVER_DISTRIBUTION), serverLocation);
     		task.setPrefixToRemove(Configuration.PREFIX_TO_REMOVE_FROM_DISTRO);
     		task.run();
     		configureServer();
+    		createDataAndLogDirs();
+    		installLogger();
     		postInstall();
     	}
     	else {
@@ -47,6 +54,24 @@ public abstract class AbstractInstaller implements Installer {
                 "" + SERVER_PORT);
 	}
 	
+	private void createDataAndLogDirs() throws IOException {
+		String dataPrefixString = configuration.getParameterValue(Parameter.DATA_PREFIX);
+		if (dataPrefixString != null) {
+			File ontologyDir = new File(dataPrefixString, "ontologies");
+			if (!ontologyDir.exists()) {
+				ontologyDir.mkdirs();
+			}
+		}
+		String logPrefixString = configuration.getParameterValue(Parameter.LOG_PREFIX);
+		if (logPrefixString != null) {
+			File logDir = new File(logPrefixString);
+			if (!logDir.exists()) {
+				logDir.mkdirs();
+			}
+		}
+	}
+	
+	protected abstract void installLogger() throws IOException;
 	protected abstract void postInstall() throws IOException;
 	
 	@Override
@@ -58,6 +83,7 @@ public abstract class AbstractInstaller implements Installer {
 			catch (IOException ioe) {
 				System.out.println("Undeploy failed: " + ioe.getMessage());
 			}
+			log("Deleting " + serverLocation);
 			Utility.deleteRecursively(serverLocation);
 		}
 	}
@@ -87,10 +113,6 @@ public abstract class AbstractInstaller implements Installer {
     	return getClass().getClassLoader().getResource(name);
     }
     
-    protected Configuration getConfiguration() {
-		return configuration;
-	}
-    
     protected File getServerLocation() {
 		return serverLocation;
 	}
@@ -109,6 +131,12 @@ public abstract class AbstractInstaller implements Installer {
     	final Process p = Runtime.getRuntime().exec(command, null, directory);
     	new Thread(new DisplayOutputRunner(p.getInputStream())).start();
     	new Thread(new DisplayOutputRunner(p.getErrorStream())).start();
+    	try {
+    	    p.waitFor();
+    	}
+    	catch (InterruptedException ie) {
+    		throw new RuntimeException("Where is this coming from?  There is no thread interrupt logic here.");
+    	}
     }
     
     private class DisplayOutputRunner implements Runnable {
@@ -147,12 +175,14 @@ public abstract class AbstractInstaller implements Installer {
     		sb.append(commandPart);
     	}
     	log(sb.toString());
-    	String[] unixCommand = new String[javaCommand.length + 3];
+    	int paddingCount = 3;
+    	String[] unixCommand = new String[javaCommand.length + paddingCount];
     	unixCommand[0] = configuration.getParameterValue(Parameter.JAVA_CMD);
     	unixCommand[1] = "-classpath";
     	unixCommand[2] = "bundles/org.semanticweb.owl.owlapi.jar" + File.pathSeparator + "bundles/org.protege.owl.server.jar";
+    	// unixCommand[3] = "-agentlib:jdwp=transport=dt_socket,address=8300,server=y,suspend=y";
     	for (int i = 0; i < javaCommand.length; i++) {
-    		unixCommand[i+3] = javaCommand[i];
+    		unixCommand[i+paddingCount] = javaCommand[i];
     	}
 		runNoAnnounce(serverLocation, unixCommand);
     }

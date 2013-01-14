@@ -7,7 +7,7 @@ then
    server_prefix=${PROTEGE_SERVER_PREFIX}
 fi
 
-cli_lib=${server_prefix}/lib/commons-cli-1.2.jar
+cli_lib=${server_prefix}/lib/commons-cli.jar
 owl_lib=${server_prefix}/bundles/org.semanticweb.owl.owlapi.jar
 server_lib=${server_prefix}/bundles/org.protege.owl.server.jar
 class=org.protege.owl.server.command.Status
