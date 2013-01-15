@@ -10,6 +10,7 @@ import java.io.Writer;
 import java.net.URL;
 import java.util.EnumMap;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class Configuration {
@@ -91,7 +92,7 @@ public class Configuration {
 		try {
 			for (String line = reader.readLine(); line != null; line = reader.readLine()) {
 				for (Parameter p : Parameter.values()) {
-					line = line.replaceAll(Pattern.quote("@" + p.getName() + "@"), parameterMap.get(p));
+					line = line.replaceAll(Pattern.quote("@" + p.getName() + "@"), Matcher.quoteReplacement(parameterMap.get(p)));
 				}
 				writer.write(line);
 				writer.write('\n');

@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.IOException;
 
 public class LinuxInstaller extends UnixInstaller {
+	public static final String UPDATE_RCD_BIN = "/usr/sbin/update-rc.d";
+	public static final String CHKCONFIG_BIN  = "/usr/sbin/chkconfig";
+	
 	private File initdFile = new File("/etc/init.d/protege");
 	private File protegeDefaults  = new File("/etc/default/protege");
 	
@@ -22,7 +25,12 @@ public class LinuxInstaller extends UnixInstaller {
         getConfiguration().copyWithReplacements(getResource("unix/protege.defaults"), protegeDefaults);
         getConfiguration().copyWithReplacements(getResource("unix/protege"), initdFile);
         makeExecutable(initdFile);
-        run(null, "update-rc.d", "protege", "defaults");
+        if (new File(UPDATE_RCD_BIN).exists()) {
+        	run(null, UPDATE_RCD_BIN, "protege", "defaults");
+        }
+        else if (new File(CHKCONFIG_BIN).exists()) {
+        	run(null, CHKCONFIG_BIN, "--add", "protege");
+        }
         run(null, "/etc/init.d/protege", "start");
 	}
 
@@ -34,7 +42,12 @@ public class LinuxInstaller extends UnixInstaller {
 	        log("Deleting /etc/init.d and /etc/rc*.d Protege OWL Server scripts");
 	        initdFile.delete();
 	        protegeDefaults.delete();
-	        run(null, "update-rc.d", "protege", "remove");
+	        if (new File(UPDATE_RCD_BIN).exists()) {
+	        	run(null, UPDATE_RCD_BIN, "protege", "remove");
+	        }
+	        else if (new File(CHKCONFIG_BIN).exists()) {
+	        	run(null, CHKCONFIG_BIN, "--del", "protege");
+	        }
 	        File logDir  = new File(getConfiguration().getParameterValue(Parameter.LOG_PREFIX));
 	        logDir.delete();
 		}
