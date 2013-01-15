@@ -31,7 +31,6 @@ start()
          -Djava.awt.headless=true \
          -Xmx${PROTEGE_MEMORY} \
          -server -Djava.rmi.server.hostname=${HOSTNAME} \
-          -agentlib:jdwp=transport=dt_socket,address=8000,server=y,suspend=n \
          -DentityExpansionLimit=1000000 -Dfile.encoding=UTF-8 \
          -Dorg.protege.owl.server.configuration=metaproject.owl \
          -Djava.util.logging.config.file=logging.properties \
