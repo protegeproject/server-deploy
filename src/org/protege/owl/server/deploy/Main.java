@@ -157,6 +157,7 @@ public class Main extends JFrame {
 				Installer installer = createInstaller();
 				installer.install();
 				JOptionPane.showMessageDialog(Main.this, new InstallationInfo(installer.getConfiguration(), "Installed"));
+				System.exit(0);
 			}
 			catch (IOException ioe) {
 				JOptionPane.showMessageDialog(Main.this, "Install failed: " + ioe.getMessage());
@@ -172,6 +173,7 @@ public class Main extends JFrame {
 				Installer installer = createInstaller();
 				installer.deploy();
 				JOptionPane.showMessageDialog(Main.this, new InstallationInfo(installer.getConfiguration(), "Deployed"));
+				System.exit(0);
 			}
 			catch (IOException ioe) {
 				JOptionPane.showMessageDialog(Main.this, "Deploy failed: " + ioe.getMessage());
@@ -192,6 +194,7 @@ public class Main extends JFrame {
 				else {
 					JOptionPane.showMessageDialog(Main.this, "Uninstall Incomplete");
 				}
+				System.exit(0);
 			}
 			catch (IOException ioe) {
 				JOptionPane.showMessageDialog(Main.this, "Uninstall failed: " + ioe.getMessage());
@@ -206,6 +209,7 @@ public class Main extends JFrame {
 			try {
 				createInstaller().undeploy();
 				JOptionPane.showMessageDialog(Main.this, "Undeployed");
+				System.exit(0);
 			}
 			catch (IOException ioe) {
 				JOptionPane.showMessageDialog(Main.this, "Undeploy failed: " + ioe.getMessage());

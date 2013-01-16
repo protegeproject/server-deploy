@@ -61,6 +61,10 @@ public abstract class AbstractInstaller implements Installer {
 			if (!ontologyDir.exists()) {
 				ontologyDir.mkdirs();
 			}
+			if (ontologyDir.listFiles().length == 0) {
+				URL pizzaHistoryURL = getResource("PizzaOntology.history");
+				Utility.copy(pizzaHistoryURL, new File(ontologyDir, "PizzaOntology.history"));
+			}
 		}
 		String logPrefixString = configuration.getParameterValue(Parameter.LOG_PREFIX);
 		if (logPrefixString != null) {

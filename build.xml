@@ -55,6 +55,7 @@
 	
 	<target name="copy.resources" depends="init, copy.unix.resources, copy.windows.resources, copy.osx.resources">
 		<copy file="protege-owl-server.zip" todir="${classes}"/>
+        <copy file="PizzaOntology.history" todir="${classes}"/>
 	</target>
 	
 	<target name="jar" depends="compile, copy.resources, manifest">
