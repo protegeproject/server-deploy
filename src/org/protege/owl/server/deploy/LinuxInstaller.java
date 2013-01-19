@@ -9,22 +9,34 @@ public class LinuxInstaller extends UnixInstaller {
 	
 	private File initdFile = new File("/etc/init.d/protege");
 	private File protegeDefaults  = new File("/etc/default/protege");
+	private File startServerScript;
+	private File stopServerScript;
 	
 	public LinuxInstaller(Configuration configuration) {
 		super(configuration);
+		File serverLocation = new File(getConfiguration().getParameterValue(Parameter.SERVER_PREFIX));
+		startServerScript = new File(serverLocation, "bin/start-owl-server");
+		stopServerScript  = new File(serverLocation, "bin/stop-owl-server");
 	}
 
 	@Override
 	protected void postInstall() throws IOException {
 	    installUnixScripts();
+        getConfiguration().copyWithReplacements(getResource("unix/protege"), initdFile);
+        makeExecutable(initdFile);
+
+        getConfiguration().copyWithReplacements(getResource("unix/protege.defaults"), protegeDefaults);
+        
+        Utility.copy(getResource("unix/start-owl-server"), startServerScript);
+        makeExecutable(startServerScript);
+        
+        Utility.copy(getResource("unix/stop-owl-server"), stopServerScript);
+        makeExecutable(stopServerScript);
 	}
 	
 	@Override
 	protected void postDeploy() throws IOException {
 		log("Configuring the /etc/init.d and /etc/rc*.d scripts");
-        getConfiguration().copyWithReplacements(getResource("unix/protege.defaults"), protegeDefaults);
-        getConfiguration().copyWithReplacements(getResource("unix/protege"), initdFile);
-        makeExecutable(initdFile);
         if (new File(UPDATE_RCD_BIN).exists()) {
         	run(null, UPDATE_RCD_BIN, "protege", "defaults");
         }

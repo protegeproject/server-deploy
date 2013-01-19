@@ -1,0 +1,3 @@
+#!/bin/bash -x
+
+/etc/init.d/protege stop

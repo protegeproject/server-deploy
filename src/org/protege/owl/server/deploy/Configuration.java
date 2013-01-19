@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 public class Configuration {
 	public static final String ENCODING = "UTF-8";
 
-	public static final String UNIX_SCRIPTS = "unix-scripts.zip";
+	public static final String UNIX_SCRIPTS = "unix/unix-scripts.zip";
 	public static final String SERVER_DISTRIBUTION = "protege-owl-server.zip";
 
 	public static final String PREFIX_TO_REMOVE_FROM_DISTRO = "server";

@@ -13,6 +13,7 @@ import java.net.URL;
 import java.net.UnknownHostException;
 
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -30,10 +31,7 @@ public class Main extends JFrame {
 	private JTextField hostnameField;
 	private JTextField javacmdField;
 	private JTextField memoryField;
-	
-	private JButton deployButton;
-	private JButton undeployButton;
-	
+	private JCheckBox  startServerBox;
 	
 	public Main() {
 		super("Protege OWL Server Installer");
@@ -71,6 +69,11 @@ public class Main extends JFrame {
 		memoryField=new JTextField();
 		panel.add(memoryField);
 		
+		panel.add(new JLabel(""));
+		
+		startServerBox = new JCheckBox("Automatically start server");
+		panel.add(startServerBox);
+		
 		initializeFields(os);
 		
 		Dimension dim1 = new JLabel("/usr/local/java/jdk1.6.034_8888/bin/java pad").getPreferredSize();
@@ -83,6 +86,7 @@ public class Main extends JFrame {
 	private void initializeFields(OperatingSystem os) {
 		initializeHostnameField(os);
 		initializeJavaCmdField(os);
+		initializeStartServer(os);
 	}
 	
 	private void initializeHostnameField(OperatingSystem os) { 
@@ -121,31 +125,29 @@ public class Main extends JFrame {
 		}
 	}
 	
+	private void initializeStartServer(OperatingSystem os) {
+	    if (os.isWindows()) {
+	        startServerBox.setEnabled(false);
+	        startServerBox.setSelected(false);
+	    }
+	    else {
+	        startServerBox.setSelected(true);
+	    }
+	}
+	
 	private JPanel createBottomPanel() {
 		JPanel panel = new JPanel();
 		panel.setLayout(new GridLayout(1,0));
 		
-	    deployButton = new JButton("Deploy");
-		deployButton.addActionListener(new DeployActionListener());
-		panel.add(deployButton);
 		
 		JButton installButton = new JButton("Install");
 		installButton.addActionListener(new InstallActionListener());
 		panel.add(installButton);
 		
-	    undeployButton = new JButton("Undeploy");
-		undeployButton.addActionListener(new UndeployActionListener());
-		panel.add(undeployButton);
 		
 		JButton uninstallButton = new JButton("Uninstall");
 		uninstallButton.addActionListener(new UninstallActionListener());
 		panel.add(uninstallButton);
-		
-		OperatingSystem os = OperatingSystem.detectOperatingSystem();
-		if (os == null || os.isWindows()) {
-			deployButton.setEnabled(false);
-			undeployButton.setEnabled(false);
-		}
 		
 		return panel;
 	}
@@ -155,28 +157,17 @@ public class Main extends JFrame {
 		public void actionPerformed(ActionEvent e) {
 			try {
 				Installer installer = createInstaller();
-				installer.install();
+				if (startServerBox.isSelected()) {
+				    installer.deploy();
+				}
+				else {
+				    installer.install();
+				}
 				JOptionPane.showMessageDialog(Main.this, new InstallationInfo(installer.getConfiguration(), "Installed"));
 				System.exit(0);
 			}
 			catch (IOException ioe) {
 				JOptionPane.showMessageDialog(Main.this, "Install failed: " + ioe.getMessage());
-				ioe.printStackTrace();
-			}
-		}
-	}
-	
-	private class DeployActionListener implements ActionListener {
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			try {
-				Installer installer = createInstaller();
-				installer.deploy();
-				JOptionPane.showMessageDialog(Main.this, new InstallationInfo(installer.getConfiguration(), "Deployed"));
-				System.exit(0);
-			}
-			catch (IOException ioe) {
-				JOptionPane.showMessageDialog(Main.this, "Deploy failed: " + ioe.getMessage());
 				ioe.printStackTrace();
 			}
 		}
@@ -202,22 +193,7 @@ public class Main extends JFrame {
 			}
 		}
 	}
-	
-	private class UndeployActionListener implements ActionListener {
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			try {
-				createInstaller().undeploy();
-				JOptionPane.showMessageDialog(Main.this, "Undeployed");
-				System.exit(0);
-			}
-			catch (IOException ioe) {
-				JOptionPane.showMessageDialog(Main.this, "Undeploy failed: " + ioe.getMessage());
-				ioe.printStackTrace();
-			}
-		}
-	}
-    
+
     private Configuration createConfiguration() {
 		String sandboxUser = sandBoxUserField.getText();
 		String hostname    = hostnameField.getText();

@@ -1,0 +1,3 @@
+#!/bin/bash -x
+
+sudo /bin/launchctl unload /Library/LaunchDaemons/org.protege.owl.server.plist

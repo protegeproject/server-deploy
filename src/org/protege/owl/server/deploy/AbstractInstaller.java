@@ -87,8 +87,8 @@ public abstract class AbstractInstaller implements Installer {
 			catch (IOException ioe) {
 				System.out.println("Undeploy failed: " + ioe.getMessage());
 			}
-			log("Deleting " + serverLocation);
 			Utility.deleteRecursively(serverLocation);
+			log("Deleted " + serverLocation);
 		}
 	}
 
