@@ -8,12 +8,17 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import java.net.Inet4Address;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.URL;
-import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Enumeration;
+import java.util.List;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -28,7 +33,7 @@ public class Main extends JFrame {
 	 */
 	private static final long serialVersionUID = -2039765599195259981L;
 	private JTextField sandBoxUserField;
-	private JTextField hostnameField;
+	private JComboBox  hostnameField;
 	private JTextField javacmdField;
 	private JTextField memoryField;
 	private JCheckBox  startServerBox;
@@ -47,7 +52,7 @@ public class Main extends JFrame {
 		setVisible(true);
 	}
 	
-	private JPanel createCenterPanel() {
+	private JPanel createCenterPanel()  {
 		OperatingSystem os = OperatingSystem.detectOperatingSystem();
 
 		JPanel panel = new JPanel();
@@ -58,7 +63,9 @@ public class Main extends JFrame {
 		panel.add(sandBoxUserField);
 		
 		panel.add(new JLabel("Hostname:"));
-		hostnameField = new JTextField();
+		hostnameField = new JComboBox(getHostnames());
+		hostnameField.setEditable(true);
+		hostnameField.setSelectedIndex(0);
 		panel.add(hostnameField);
 		
 		panel.add(new JLabel("Java Command:"));
@@ -80,25 +87,48 @@ public class Main extends JFrame {
 		Dimension dim2 = javacmdField.getPreferredSize();
 		javacmdField.setPreferredSize(new Dimension((int) dim1.getWidth(), (int) dim2.getHeight()));
 		
+		Configuration minimalConfiguration = new Configuration("", "", "", 0);
+		panel.add(new JLabel("Installation Directory:"));
+		panel.add(new JLabel(minimalConfiguration.getParameterValue(Parameter.SERVER_PREFIX)));
+		
+		panel.add(new JLabel("Data Directory:"));
+		panel.add(new JLabel(minimalConfiguration.getParameterValue(Parameter.DATA_PREFIX)));
+		
+		panel.add(new JLabel("Logs Directory:"));
+		panel.add(new JLabel(minimalConfiguration.getParameterValue(Parameter.LOG_PREFIX)));
+		
 		return panel;
 	}
 	
-	private void initializeFields(OperatingSystem os) {
-		initializeHostnameField(os);
-		initializeJavaCmdField(os);
-		initializeStartServer(os);
-	}
-	
-	private void initializeHostnameField(OperatingSystem os) { 
+	private String[] getHostnames() {
+		List<String> hostnames = new ArrayList<String>();
 		try {
-			String hostname = InetAddress.getLocalHost().getHostName();
-			if (hostname != null) {
-				hostnameField.setText(hostname);
+			Enumeration<NetworkInterface> networkInterfaces = NetworkInterface.getNetworkInterfaces();
+			while (networkInterfaces.hasMoreElements()) {
+				NetworkInterface networkInterface = networkInterfaces.nextElement();
+				if (!networkInterface.isLoopback() && networkInterface.isUp()) {
+					Enumeration<InetAddress> addrs = networkInterface.getInetAddresses();
+					while (addrs.hasMoreElements()) {
+						InetAddress addr = addrs.nextElement();
+						if (addr instanceof Inet4Address) {
+							hostnames.add(addr.getHostAddress());
+						}
+					}
+				}
+			}
+			hostnames.add(InetAddress.getLocalHost().getCanonicalHostName());
+		}
+		catch (Exception e) {
+			if (hostnames.isEmpty()) {
+				hostnames.add("localhost");
 			}
 		}
-		catch (UnknownHostException uhe) {
-			;
-		}
+		return hostnames.toArray(new String[0]);
+	}
+	
+	private void initializeFields(OperatingSystem os) {
+		initializeJavaCmdField(os);
+		initializeStartServer(os);
 	}
 	
 	private void initializeJavaCmdField(OperatingSystem os) {
@@ -196,7 +226,7 @@ public class Main extends JFrame {
 
     private Configuration createConfiguration() {
 		String sandboxUser = sandBoxUserField.getText();
-		String hostname    = hostnameField.getText();
+		String hostname    = (String) hostnameField.getSelectedItem();
 		String javacmd     = javacmdField.getText();
 		int memoryMb;
 		try {

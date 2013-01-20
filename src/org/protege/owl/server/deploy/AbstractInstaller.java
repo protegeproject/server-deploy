@@ -14,10 +14,13 @@ public abstract class AbstractInstaller implements Installer {
 	
 	private Configuration configuration;
 	private File serverLocation;
+	private File configurationDir;
+
 
 	public AbstractInstaller(Configuration configuration) {
 		this.configuration = configuration;
 		serverLocation = new File(configuration.getParameterValue(Parameter.SERVER_PREFIX));
+		configurationDir = new File(configuration.getParameterValue(Parameter.DATA_PREFIX), "configuration");
 	}
 
 	public Configuration getConfiguration() {
@@ -45,13 +48,17 @@ public abstract class AbstractInstaller implements Installer {
 	}
 	
 	private void configureServer() throws IOException {
-        runJava("org.protege.owl.server.command.SetMetaprojectDataDir",
-                "metaproject.owl",
-                new File(configuration.getParameterValue(Parameter.DATA_PREFIX), "ontologies").getAbsolutePath());
-
         runJava("org.protege.owl.server.command.SetMetaProjectPort",
         		"metaproject.owl",
                 "" + SERVER_PORT);
+        
+        runJava("org.protege.owl.server.command.SetMetaprojectDataDir",
+                "metaproject.owl",
+                new File(configuration.getParameterValue(Parameter.DATA_PREFIX), "ontologies").getAbsolutePath());
+        
+        runJava("org.protege.owl.server.command.SetConfigurationDir",
+                "metaproject.owl",
+                configurationDir.getAbsolutePath());
 	}
 	
 	private void createDataAndLogDirs() throws IOException {
@@ -61,10 +68,18 @@ public abstract class AbstractInstaller implements Installer {
 			if (!ontologyDir.exists()) {
 				ontologyDir.mkdirs();
 			}
+			if (!configurationDir.exists()) {
+				configurationDir.mkdirs();
+			}
 			if (ontologyDir.listFiles().length == 0) {
 				URL pizzaHistoryURL = getResource("PizzaOntology.history");
 				Utility.copy(pizzaHistoryURL, new File(ontologyDir, "PizzaOntology.history"));
 			}
+	        File usersAndGroups = new File(configurationDir, "UsersAndGroups");
+	        if (!usersAndGroups.exists()) {
+	        	Utility.copy(getResource("UsersAndGroups"), usersAndGroups);
+	        }
+	        Utility.deleteRecursively(new File(serverLocation, "configuration"));
 		}
 		String logPrefixString = configuration.getParameterValue(Parameter.LOG_PREFIX);
 		if (logPrefixString != null) {

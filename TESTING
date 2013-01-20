@@ -1,0 +1,22 @@
+Platforms to test: Windows 7, Linux (Ubuntu + Fedora), OS/X.
+
+Clear the state by uninstalling, removing the data directory and
+making sure that installation directory was successfully removed.
+
+  * It starts and can be connected to
+  * It runs as the sandbox user
+  * The users and groups start with the default
+  * The default ontology starts with the default
+  * A reinstall doesn't overwrite the ontologies
+  * A reinstall doesn't overwrite the users and groups
+  * Linux and OS/X: It continues running on a reboot.
+  * Linux and OS/X: The start and stop scripts work
+
+Virtualbox Notes:
+  * Sharing files.  Mounting works on windows but I had some trouble
+    with Fedora.  Putting the installer and Protege on a usb stick and
+    enabling it for the guest works in all cases.
+
+  * Host adapter is a good mode for testing...
+
+  * Fedora firewall can be configured with system-config-firewall.

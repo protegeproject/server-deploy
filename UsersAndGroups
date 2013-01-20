@@ -1,0 +1,8 @@
+
+User: administrator Password: admin123
+  Groups: admin ;
+
+
+User: guest Password: guest
+  Groups: world;
+
